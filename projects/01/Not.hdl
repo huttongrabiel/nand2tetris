@@ -9,9 +9,10 @@
  */
 
 CHIP Not {
+  /* This is a working implementation */
     IN in;
     OUT out;
 
     PARTS:
-    // Put your code here:
+    Nand(a=in, b=in, out=out); /* x NAND x = NOT(x AND x) = NOT(x) */
 }

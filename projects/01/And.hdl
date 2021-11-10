@@ -10,9 +10,12 @@
  */
 
 CHIP And {
+  /* This is a working implementation */
     IN a, b;
     OUT out;
 
     PARTS:
-    // Put your code here:
+    /* Not(x NAND y) */
+    Nand(a=a, b=b, out=out1);
+    Not(in=out1, out=out); 
 }

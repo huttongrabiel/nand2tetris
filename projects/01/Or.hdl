@@ -10,9 +10,14 @@
  */
 
 CHIP Or {
+  /* This is a working implementation */ 
     IN a, b;
     OUT out;
 
     PARTS:
-    // Put your code here:
+    /* Not(Not(x) AND Not(y)) = x OR y */
+    Not(in=a, out=a1);
+    Not(in=b, out=b1);
+    And(a=a1, b=b1, out=And1);
+    Not(in=And1, out=out);
 }
