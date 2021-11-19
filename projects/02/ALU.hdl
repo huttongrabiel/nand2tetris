@@ -42,5 +42,30 @@ CHIP ALU {
         ng; // 1 if (out < 0),  0 otherwise
 
     PARTS:
+  /* Initial idea/thoughts:
+    * Or16 on out will tell out if out is 0 which means we can set zr 
+      feeding the Or16 output into zr
+    * We need to determine when something is negative
+    * Can be written in less than 20 lines
+    * How do we zero every bit?
+      - set the output to false  
+  */
+
+  Not16(in=x, out=notX); // NX, Negating all 16 x bits
+  Not16(in=y, out=notY); // NY, Negating all 16 y bits
+
+  Not16(in=finalOut, out=notOut); // NO, Negate out will need to feed finalOut to this
+
+  And16(a=x, b=y, out=xAND16y); // F, f==0 bitwise and
+  Add16(a=x, b=y, out=xADD16y); // F, f==1 x+y
+
+  /* Or the 16 bits together to check if the value is 0 */
+  Or8Way(in=x[0..7], out=OrLeftSubBusX);
+  Or8Way(in=x[8..15], out=OrRightSubBusX);
+  Or8Way(in=y[0..7], out=OrLeftSubBusY);
+  Or8Way(in=y[8..15], out=OrRightSubBusY);
+  Or(a=OrLeftSubBusX, b=OrRightSubBusX, out=OrX);
+  Or(a=OrLeftSubBusY, b=OrRightSubBusY, out=OrY);
+  
 
 }
