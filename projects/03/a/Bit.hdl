@@ -14,5 +14,7 @@ CHIP Bit {
     OUT out;
 
     PARTS:
-    // Put your code here:
+    /* Working 1-Bit Register */
+    Mux(a=DFFOut, b=in, sel=load, out=MuxOut);
+    DFF(in=MuxOut, out=DFFOut, out=out);
 }
