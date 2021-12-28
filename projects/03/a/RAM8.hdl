@@ -15,5 +15,24 @@ CHIP RAM8 {
     OUT out[16];
 
     PARTS:
-    // Put your code here:
+    /* I needed hints on this one, hint credit goes to https://people.duke.edu/~nts9/logicgates/RAM8.hdl. How this 
+    works is that the load bit really only applies to one register. When we DMux8Way we place the load bit in the
+    correct register. Regardless of whether the load bit is 0 or 1, all other load bits are set to 0 so that the
+    in value will not be outputted to that register. Then we fan out the input to all the registers, the load bit
+    is whatever the DMux8Way result is, meaning if the address is not supposed to be changed the load bit will be
+    one in both the correct address and all other addresses. Finally, we have to decide which register to output, 
+    this is regardless of where of we placed the input. To select the correct register to display, we have to 
+    Mux8Way16 all the registers and give the address to the sel variable.*/ 
+    DMux8Way(in=load, sel=address, a=a, b=b, c=c, d=d, e=e, f=f, g=g, h=h); 
+
+    Register(in=in, load=a, out=RegOut0);
+    Register(in=in, load=b, out=RegOut1);
+    Register(in=in, load=c, out=RegOut2);
+    Register(in=in, load=d, out=RegOut3);
+    Register(in=in, load=e, out=RegOut4);
+    Register(in=in, load=f, out=RegOut5);
+    Register(in=in, load=g, out=RegOut6);
+    Register(in=in, load=h, out=RegOut7);
+    
+    Mux8Way16(a=RegOut0, b=RegOut1, c=RegOut2, d=RegOut3, e=RegOut4, f=RegOut5, g=RegOut6, h=RegOut7, sel=address, out=out);
 }
