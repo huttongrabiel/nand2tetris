@@ -16,5 +16,17 @@ CHIP PC {
     OUT out[16];
 
     PARTS:
-    // Put your code here:
+    /* reset takes precedence over load, which takes
+       precedence over inc */
+
+    /* Working implementation!! */
+  
+    And16(a=false, b=in, out=Reset);
+    Inc16(in=secondOut, out=Inc);
+    Or(a=inc, b=reset, out=Or1);
+    Or(a=Or1, b=load, out=FinalOr);
+    Mux(a=load, b=reset, sel=reset, out=pick);
+    Mux16(a=in, b=Reset, sel=reset, out=LoadOrRes);
+    Mux16(a=Inc, b=LoadOrRes, sel=pick, out=incRes);
+    Register(in=incRes, load=FinalOr, out=secondOut, out=out);
 }
