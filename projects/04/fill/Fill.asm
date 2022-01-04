@@ -15,20 +15,12 @@
 
 // Pseudo Code
 //
-// while(KBD != 0) {
-//  screen = black
-// }
-// else {
-//  screen = white;
-// 
-// to make screen black we need to change
-// each bit in the memory map which means
-// every single word must be changed
-// we need to write every bit from
-// 16384 to 24576 to either 1 or 0
-// 
-// if we save SCREEN to addr we can change the M
-// value at addr which means n must be set to 8192
+// if key == 0 just listen
+// if key > 0 start blackenLoop
+//  (LOOP)
+//    write 1 into each bit in each word
+//    if key == 0
+//      write a 0 into each bit in each word
 
 @KBD
 D=M
@@ -46,21 +38,50 @@ M=D
 @i
 M=0
 
+@SCREEN
+D=A
+@addr1
+M=D
+
+@j
+M=0
+
 (STARTLOOP)
+  @SCREEN
+  D=A
+  @addr
+  M=D // reset addr to start of memory map
+
+  @i
+  M=0 // reset i to 0
 
   @KBD
   D=M
   @LOOP
   D;JGT // jump if KBD is greater than 0
+
+  @SCREEN
+  D=A
+  @addr1
+  M=D // reset addr1 to start of memory map
+
+  @j
+  M=0 // reset j to 0
+  
+  @KBD
+  D=M
+  @LOOP1
+  D;JEQ // jump if KBD is 0
+
   @STARTLOOP
   0;JMP // otherwise stay in this loop
 
-(LOOP)
+(LOOP) // turns each bit in every word to 1
   @i
   D=M
   @n
   D=D-M
-  @END
+  @STARTLOOP
   D;JEQ // if i == n, goto end
 
   @addr
@@ -76,9 +97,35 @@ M=0
   @KBD
   D=M
   @STARTLOOP
-  D;JEQ // jump to startloop if kbd is 0
+  D;JEQ // jump to startloop which is treated as a hub
 
   @LOOP
+  0;JMP
+
+(LOOP1)
+  @j
+  D=M
+  @n
+  D=D-M
+  @STARTLOOP
+  D;JEQ
+
+  @addr1
+  A=M
+  M=0
+
+  @j
+  M=M+1
+
+  @addr1
+  M=M+1
+
+  @KBD
+  D=M
+  @STARTLOOP
+  D;JGT // jump to startloop which is treated as a hub
+
+  @LOOP1
   0;JMP
 
 (END)
