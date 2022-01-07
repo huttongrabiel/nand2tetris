@@ -39,5 +39,104 @@ CHIP CPU {
         pc[15];          // address of next instruction
 
     PARTS:
-    // Put your code here:
+
+    /* Left hand side of architecture */
+    Mux16(a=instruction, b=ALUOutput, sel=instruction[15], out=LHSMux16);
+    Not(in=instruction[15], out=NotAC);
+    ARegister(in=LHSMux16, load=instruction[5], out=AReg, out[0..14]=addressM);
+
+    /* (j1 OR j2 OR j3) */
+    Or(a=instruction[2], b=instruction[1], out=OrJmp1and2);
+    Or(a=OrJmp1and2, b=instruction[0], out=noJmp);
+  
+    /* JEQ */
+    Or(a=zr, b=false, out=JEQ);
+
+    /* JLT */
+    Or(a=ng, b=false, out=JLT);
+
+    /* JGT, output must be zero to load */
+    And(a=zr, b=ng, out=JGT);
+    Not(in=JGT, out=NotJGT);
+
+    /* JGE, output must be 0 */
+    Or(a=ng, b=false, out=JGE);
+    Not(in=JGE, out=NotJGE);
+
+    /* JNE, output must be 0 */
+    Or(a=zr, b=false, out=JNE);
+    Not(in=JNE, out=NotJNE);
+  
+    /* JLE, load if 1 */
+    Nand(a=zr, b=ng, out=JLE);
+
+    /* JMP */ 
+    And(a=instruction[2], b=instruction[1], out=ANDJmp1and2);
+    And(a=ANDJmp1and2, b=instruction[0], out=JMP);
+
+    /* Mux8Way16 select JMP */
+    Mux8Way16(a[0]=noJmp, b[0]=NotJGT, c[0]=JEQ, d[0]=NotJGE, e[0]=JLT, f[0]=NotJNE, g[0]=JLE, h[0]=JMP, sel=instruction[0..2], out[0]=PCLoad);
+
+    /* Middle piece of architecture */
+    Mux16(a=AReg, b=inM, sel=instruction[15], out=MiddleMux16);
+    And(a=instruction[4], b=instruction[15], out=DRegLoad);
+    DRegister(in=ALUOutput, load=DRegLoad, out=DReg);
+
+    /* Program counter loads when jumping*/
+    And(a=instruction[15], b=PCLoad, out=AndPCLoad);
+    PC(in=AReg, load=AndPCLoad, inc=true, reset=reset, out[0..14]=pc);
+
+    /* Right hand side of architecture */
+    ALU(x=MiddleMux16, y=DReg, zx=instruction[11], nx=instruction[10], zy=instruction[9], ny=instruction[8], f=instruction[7], no=instruction[6], out=ALUOutput, zr=zr, ng=ng);
+    
+    /* M Register */
+    Register(in=ALUOutput, load=helper, out=outM);
+
+    /* writeM output, instruction[3] AND instruction[15] */
+    And(a=instruction[15], b=instruction[3], out=helper, out=writeM);
 }
+
+/*
+ 
+ LHS Mux16
+  - Takes in instruction and ALU ouput
+    - instruction should be chosen when instruction[15] is 0 and 
+      ALU Ouput should be chosen when instruction[15] is 1. 
+    - This is because instruction[15] denotes whether we are making
+      a computation or not
+
+  A Register
+    - Takes in the output from the LHS Mux16
+    - The A Register is loaded either when instruction[15]==0 or D1==1
+    - (D1==1 AND instruction[15]==1)  or instruction[15]==0
+
+  **Middle Mux16 (Not certain on this one)
+    - Takes in the A Register and M (inM)
+      - inM is RAM[A] (i.e. M)
+      - if instruction[15]==0 then it picks A Register
+      - if instruction[15]==1 then it picks inM
+
+  Program Counter
+    - REMEMBER THE PRECENDENCE (inc < load < reset)
+    - reset = reset
+    - in = A Register
+    - load and inc are trickier
+    - load
+      - we only load based on the outcome of the jmp operations, those must
+        be completed first and the output of the jump operation loaded into
+        the load input
+    - inc
+      - inc can be just be true. the only time when we don't increment
+        the program counter is when we load or reset and that functionality
+        is already handled within the program counter itself
+    - out[0..14] = pc
+
+  JMP Instructions
+    - null: or the jump bits together
+    - JEQ: zr==1
+    - JLT: ng==1
+    - JGT: zr==0 AND ng==0
+    - JGE: ng==0
+    - JNE: zr==0
+    - JLE: zr NAND ng (zr==0 and ng==1) or (zr==1 and ng==0)
+    - JMP: and the jump bits together
