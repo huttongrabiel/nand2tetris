@@ -40,60 +40,64 @@ CHIP CPU {
 
     PARTS:
 
-    /* Left hand side of architecture */
+    /* IT WORKS, IT ACTUALLY WORKS!!!!!!! */
+    
+    /* LHS Mux16 */
     Mux16(a=instruction, b=ALUOutput, sel=instruction[15], out=LHSMux16);
-    Not(in=instruction[15], out=NotAC);
-    ARegister(in=LHSMux16, load=instruction[5], out=AReg, out[0..14]=addressM);
 
-    /* (j1 OR j2 OR j3) */
-    Or(a=instruction[2], b=instruction[1], out=OrJmp1and2);
-    Or(a=OrJmp1and2, b=instruction[0], out=noJmp);
-  
-    /* JEQ */
-    Or(a=zr, b=false, out=JEQ);
+    /* A Register */
+    Mux(a=true, b=instruction[5], sel=instruction[15], out=ARegLoad);
+    ARegister(in=LHSMux16, load=ARegLoad, out[0..14]=addressM, out=AReg);
 
-    /* JLT */
-    Or(a=ng, b=false, out=JLT);
-
-    /* JGT, output must be zero to load */
-    And(a=zr, b=ng, out=JGT);
-    Not(in=JGT, out=NotJGT);
-
-    /* JGE, output must be 0 */
-    Or(a=ng, b=false, out=JGE);
-    Not(in=JGE, out=NotJGE);
-
-    /* JNE, output must be 0 */
-    Or(a=zr, b=false, out=JNE);
-    Not(in=JNE, out=NotJNE);
-  
-    /* JLE, load if 1 */
-    Nand(a=zr, b=ng, out=JLE);
-
-    /* JMP */ 
-    And(a=instruction[2], b=instruction[1], out=ANDJmp1and2);
-    And(a=ANDJmp1and2, b=instruction[0], out=JMP);
-
-    /* Mux8Way16 select JMP */
-    Mux8Way16(a[0]=noJmp, b[0]=NotJGT, c[0]=JEQ, d[0]=NotJGE, e[0]=JLT, f[0]=NotJNE, g[0]=JLE, h[0]=JMP, sel=instruction[0..2], out[0]=PCLoad);
-
-    /* Middle piece of architecture */
-    Mux16(a=AReg, b=inM, sel=instruction[15], out=MiddleMux16);
-    And(a=instruction[4], b=instruction[15], out=DRegLoad);
+    /* D Register */
+    Mux(a=false, b=instruction[4], sel=instruction[15], out=DRegLoad);
     DRegister(in=ALUOutput, load=DRegLoad, out=DReg);
 
-    /* Program counter loads when jumping*/
-    And(a=instruction[15], b=PCLoad, out=AndPCLoad);
-    PC(in=AReg, load=AndPCLoad, inc=true, reset=reset, out[0..14]=pc);
+    /* Middle Mux16 */
+    Mux16(a=AReg, b=inM, sel=instruction[12], out=MiddleMux16);
 
-    /* Right hand side of architecture */
-    ALU(x=MiddleMux16, y=DReg, zx=instruction[11], nx=instruction[10], zy=instruction[9], ny=instruction[8], f=instruction[7], no=instruction[6], out=ALUOutput, zr=zr, ng=ng);
-    
-    /* M Register */
-    Register(in=ALUOutput, load=helper, out=outM);
+    /* writeM */
+    And(a=instruction[15], b=instruction[3], out=writeM);
 
-    /* writeM output, instruction[3] AND instruction[15] */
-    And(a=instruction[15], b=instruction[3], out=helper, out=writeM);
+    /* ALU, if instruction[15]==0, 110000*/
+    Mux(a=true, b=instruction[11], sel=instruction[15], out=ZX);
+    Mux(a=true, b=instruction[10], sel=instruction[15], out=NX);
+    Mux(a=false, b=instruction[9], sel=instruction[15], out=ZY);
+    Mux(a=false, b=instruction[8], sel=instruction[15], out=NY);
+    Mux(a=false, b=instruction[7], sel=instruction[15], out=F);
+    Mux(a=false, b=instruction[6], sel=instruction[15], out=NO);
+    ALU(x=DReg, y=MiddleMux16 , zx=ZX , nx=NX , zy=ZY , ny=NY , f=F , no=NO , out=ALUOutput, out=outM, zr=zr, ng=ng);
+
+    /* NULL */
+    Or(a=instruction[0], b=instruction[1], out=OrJmp1);
+    Or(a=OrJmp1, b=instruction[2], out=noJump);
+
+    /* JEQ */
+    And(a=zr, b=zr, out=JEQ);
+
+    /* JLT */
+    And(a=ng, b=ng, out=JLT);
+
+    /* JGT */
+    Or(a=zr, b=ng, out=JGT);
+    Not(in=JGT, out=JGTRes);
+
+    /* JGE */
+    Or(a=ng, b=ng, out=ngImd);
+    Not(in=ngImd, out=JGE);
+
+    /* JNE */
+    Or(a=zr, b=zr, out=zrImd);
+    Not(in=zrImd, out=JNE);
+
+    /* JLE */
+    Xor(a=zr, b=ng, out=JLE);
+
+    Mux8Way16(a[0]=noJump, b[0]=JGTRes, c[0]=JEQ, d[0]=JGE, e[0]=JLT, f[0]=JNE, g[0]=JLE, h[0]=true, sel=instruction[0..2], out[0]=JmpResult);
+    And(a=JmpResult, b=instruction[15], out=FinalJmpResult);
+
+    /* Program Counter */
+    PC(in=AReg, load=FinalJmpResult, inc=true, reset=reset, out[0..14]=pc);
 }
 
 /*
@@ -110,11 +114,23 @@ CHIP CPU {
     - The A Register is loaded either when instruction[15]==0 or D1==1
     - (D1==1 AND instruction[15]==1)  or instruction[15]==0
 
+  D Register
+
+  ALU
+    - Control Bits
+      - control bits are instruction[6..11]
+    - x = inM
+    - y = A Register
+    - Dealing with A Instructions and the ALU
+      - if we have an a instruction, then we just want to select
+        the MiddleMux16 output. 
+
+
   **Middle Mux16 (Not certain on this one)
     - Takes in the A Register and M (inM)
       - inM is RAM[A] (i.e. M)
-      - if instruction[15]==0 then it picks A Register
-      - if instruction[15]==1 then it picks inM
+      - if instruction[15]==0 then it picks inM
+      - if instruction[15]==1 then it picks A Register
 
   Program Counter
     - REMEMBER THE PRECENDENCE (inc < load < reset)
@@ -131,12 +147,12 @@ CHIP CPU {
         is already handled within the program counter itself
     - out[0..14] = pc
 
-  JMP Instructions
+  JMP Instructions (Possible to use DMux8Way)
     - null: or the jump bits together
     - JEQ: zr==1
     - JLT: ng==1
     - JGT: zr==0 AND ng==0
     - JGE: ng==0
     - JNE: zr==0
-    - JLE: zr NAND ng (zr==0 and ng==1) or (zr==1 and ng==0)
+    - JLE: zr XOR ng (zr==0 and ng==1) or (zr==1 and ng==0)
     - JMP: and the jump bits together
