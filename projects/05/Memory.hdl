@@ -27,5 +27,16 @@ CHIP Memory {
     OUT out[16];
 
     PARTS:
-    // Put your code here:
+    /* Working implementation */
+
+    /* anything 011111111111111 < 0x4000 is 14 bits */
+    /* 0x4000 = 100000000000000 */
+    /* 0x6000 = 110000000000000 */
+  
+    DMux4Way(in=load, sel=address[13..14], a=loadRam, b=loadLow, c=loadMid, d=loadHigh);
+    Mux(a=loadRam, b=loadLow, sel=address[13], out=loadRam16K);
+    RAM16K(in=in, load=loadRam16K, address=address[0..13], out=Ram16);
+    Screen(in=in, load=loadMid, address=address[0..12], out=ScreenVal);
+    Keyboard(out=Keeb);
+    Mux4Way16(a=Ram16, b=Ram16, c=ScreenVal, d=Keeb, sel=address[13..14], out=out);
 }
