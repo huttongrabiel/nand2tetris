@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "translator.h"
+//#include "translator.h"
 #include "parser.h"
 
 struct map {
@@ -39,7 +39,7 @@ static const struct map CompOpCodes[28] = {
   {"A", "0110000"},
   {"!D", "0001101"},
   {"!A", "0110011"},
-  {"-D", "0001111"}
+  {"-D", "0001111"},
   {"-A", "0110011"},
   {"D+1", "0011111"},
   {"A+1", "0110111"},
@@ -61,3 +61,18 @@ static const struct map CompOpCodes[28] = {
   {"D&M", "1000000"},
   {"D|M", "1010101"}
 };
+
+int main(void) {
+  char *dest = destInstruction(); 
+  linearSearch(dest, DestOpCodes);
+
+  char *jump = jumpInstruction();
+  linearSearch(jump, JumpOpCodes);
+
+  char *comp = compInstruction();
+  linearSearch(comp, CompOpCodes);
+}
+
+char *linearSearch(char *instruction, static const struct map[]) {
+  // linearSearch is fast enough, there is only 44 options
+} 
