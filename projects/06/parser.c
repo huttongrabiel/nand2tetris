@@ -5,7 +5,8 @@
 
 /*
 All we do is parse the inputted file. Split the instructions up
-into their respectable pieces.
+into their respectable pieces. The translator will determine whether
+to call the A parser, C parser piece, or label. It is easier that way I think.
 */
 
 int main(void) {
@@ -46,25 +47,6 @@ char *parseAInstruction(char *line) {
   return afterAt;
 }
 
-//char *parseCInstruction(char *line) {
-//  // returns dest, comp, and jmp strings with a space between each 
-//
-//  int lenOfLine = strlen(line);
-//  char *cInstruction;
-//  cInstruction = malloc(11 * sizeof(char)); // give it eleven chararacter allocation
-//
-//  for (int i = 0; i < lenOfLine; i++) {
-//    if (line[i] == '=' || line[i] == ';') {
-//      cInstruction[i] = ' ';
-//    }
-//    else {
-//      cInstruction[i] = line[i];
-//    }
-//  }
-//
-//  return cInstruction;
-//}
-
 char *parseLabel(char *line) {
   // return value of a label: (label)
   int lenOfLine = strlen(line);
@@ -82,17 +64,6 @@ char *parseLabel(char *line) {
   
   return label;
 }
-
-//char *instructionSelect(char *line) {
-//  // Calls either parseA or parseLabel. Parsing cInstruction is done
-//  // by the three separate functions of comp, jump, and dest
-//  if (line[0] == '@') {
-//    parseAInstruction(line);
-//  }
-//  else {
-//    parseLabel(line);
-//  }
-//}
 
 // The following three functions are probably not the best way to go about
 // getting each part but it works
@@ -120,6 +91,9 @@ char *jump(char *line) {
   jumpRes = malloc(3 * sizeof(char)); // jump is max three characters
   int semicolon = 0; 
 
+  // if we dont check for a semicolon and the c instruction has no
+  // jump value, the program hangs in an endless loop
+
   int flag = 0; // sets to 1 if ';' is present in string
   for (int j = 0; j < strlen(line); j++) {
     if (line[j] == ';') {
@@ -127,9 +101,7 @@ char *jump(char *line) {
     }
   }
   
-// if we dont check for a semicolon and the c instruction has no
-// jump value, the program hangs in an endless loop
-  int index = 0;
+  int index = 0; // separate index for jumpRes
   if (flag) {
 
     for (int i = 0; i < strlen(line); i++) {
@@ -163,8 +135,9 @@ char *comp(char *line) {
   // return chars after =, other wise return "nul"
   char *compRes;
   compRes = malloc(3 * sizeof(char)); // comp is max three characters
+
   int flag = 0; // if we encounter the '=' we dont want the above if to execute anymore
-  int index = 0;
+  int index = 0; // separate index for charRes
   
   for (int i = 0; i < strlen(line); i++) {
     if (line[i] != '=' && flag == 0) {
