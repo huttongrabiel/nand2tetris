@@ -9,14 +9,12 @@ into their respectable pieces.
 */
 
 int main(void) {
-  char *line = "@monkey";
-  char *val = instructionSelect(line);
+  char *line = "@2";
+  char *val = parseAInstruction(line);
   printf("%s\n", val);
   free(val); // deallocating memory in function
 
-  char *cInstruction = "D=M";
-  char *cInVal = instructionSelect(cInstruction);
-  printf("%s\n", cInVal);
+  char *cInstruction = "DM=M+1;JGT";
 
   char *destValue = dest(cInstruction);
   printf("%s\n", destValue); // testing dest function
@@ -28,7 +26,7 @@ int main(void) {
   printf("%s\n", compValue);
 
   char *Label = "(loop)";
-  char *userLabel = instructionSelect(Label);
+  char *userLabel = parseLabel(Label);
   printf("%s\n", userLabel);
 
   // freeing all allocations
@@ -36,7 +34,6 @@ int main(void) {
   free(destValue);
   free(jumpValue);
   free(compValue);
-  free(cInVal);
 
   return(0);
 }
@@ -49,24 +46,24 @@ char *parseAInstruction(char *line) {
   return afterAt;
 }
 
-char *parseCInstruction(char *line) {
-  // returns dest, comp, and jmp strings with a space between each 
-
-  int lenOfLine = strlen(line);
-  char *cInstruction;
-  cInstruction = malloc(11 * sizeof(char)); // give it eleven chararacter allocation
-
-  for (int i = 0; i < lenOfLine; i++) {
-    if (line[i] == '=' || line[i] == ';') {
-      cInstruction[i] = ' ';
-    }
-    else {
-      cInstruction[i] = line[i];
-    }
-  }
-
-  return cInstruction;
-}
+//char *parseCInstruction(char *line) {
+//  // returns dest, comp, and jmp strings with a space between each 
+//
+//  int lenOfLine = strlen(line);
+//  char *cInstruction;
+//  cInstruction = malloc(11 * sizeof(char)); // give it eleven chararacter allocation
+//
+//  for (int i = 0; i < lenOfLine; i++) {
+//    if (line[i] == '=' || line[i] == ';') {
+//      cInstruction[i] = ' ';
+//    }
+//    else {
+//      cInstruction[i] = line[i];
+//    }
+//  }
+//
+//  return cInstruction;
+//}
 
 char *parseLabel(char *line) {
   // return value of a label: (label)
@@ -86,18 +83,16 @@ char *parseLabel(char *line) {
   return label;
 }
 
-char *instructionSelect(char *line) {
-  // Calls either parseA or parseC depending on value of the line's first char 
-  if (line[0] == '@') {
-    parseAInstruction(line);
-  }
-  else if (line[0] != '('){
-    parseCInstruction(line);
-  }
-  else {
-    parseLabel(line);
-  }
-}
+//char *instructionSelect(char *line) {
+//  // Calls either parseA or parseLabel. Parsing cInstruction is done
+//  // by the three separate functions of comp, jump, and dest
+//  if (line[0] == '@') {
+//    parseAInstruction(line);
+//  }
+//  else {
+//    parseLabel(line);
+//  }
+//}
 
 // The following three functions are probably not the best way to go about
 // getting each part but it works
