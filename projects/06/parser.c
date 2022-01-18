@@ -6,7 +6,7 @@
 /*
 All we do is parse the inputted file. Split the instructions up
 into their respectable pieces. The translator will determine whether
-to call the A parser, C parser piece, or label. It is easier that way I think.
+to call the A parser, C (piece) parser, or label. It is easier that way I think.
 */
 
 int main(void) {
