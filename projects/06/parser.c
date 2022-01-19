@@ -9,35 +9,35 @@ into their respectable pieces. The translator will determine whether
 to call the A parser, C (piece) parser, or label. It is easier that way I think.
 */
 
-int main(void) {
-  char *line = "@2";
-  char *val = parseAInstruction(line);
-  printf("%s\n", val);
-  free(val); // deallocating memory in function
-
-  char *cInstruction = "DM=M+1;JGT";
-
-  char *destValue = dest(cInstruction);
-  printf("%s\n", destValue); // testing dest function
-  
-  char *jumpValue = jump(cInstruction);
-  printf("%s\n", jumpValue);
-
-  char *compValue = comp(cInstruction);
-  printf("%s\n", compValue);
-
-  char *Label = "(loop)";
-  char *userLabel = parseLabel(Label);
-  printf("%s\n", userLabel);
-
-  // freeing all allocations
-  free(userLabel);
-  free(destValue);
-  free(jumpValue);
-  free(compValue);
-
-  return(0);
-}
+//int main(void) {
+//  char *line = "@2";
+//  char *val = parseAInstruction(line);
+//  printf("%s\n", val);
+//  free(val); // deallocating memory in function
+//
+//  char *cInstruction = "DM=M+1;JGT";
+//
+//  char *destValue = dest(cInstruction);
+//  printf("%s\n", destValue); // testing dest function
+//  
+//  char *jumpValue = jump(cInstruction);
+//  printf("%s\n", jumpValue);
+//
+//  char *compValue = comp(cInstruction);
+//  printf("%s\n", compValue);
+//
+//  char *Label = "(loop)";
+//  char *userLabel = parseLabel(Label);
+//  printf("%s\n", userLabel);
+//
+//  // freeing all allocations
+//  free(userLabel);
+//  free(destValue);
+//  free(jumpValue);
+//  free(compValue);
+//
+//  return(0);
+//}
 
 char *parseAInstruction(char *line) {
   // return the value after the @ sign

@@ -4,9 +4,12 @@
 #include "translator.h"
 #include "parser.h"
 
-// struct function defined in translator.h
+struct map {
+  char *instruction;
+  char *binaryInstruction;
+} opCode;
 
-struct map DestOpCodes[8] = { 
+static const struct map DestOpCodes[8] = { 
   {"null", "000"},
   {"M", "001"},
   {"D", "010"},
@@ -17,7 +20,7 @@ struct map DestOpCodes[8] = {
   {"AMD", "111"}
 };
 
-struct map JumpOpCodes[8] = { 
+static const struct map JumpOpCodes[8] = { 
   {"null", "000"},
   {"JGT", "001"},
   {"JEQ", "010"},
@@ -28,7 +31,7 @@ struct map JumpOpCodes[8] = {
   {"JMP", "111"}
 };
 
-struct map CompOpCodes[28] = { 
+static const struct map CompOpCodes[28] = { 
   {"0", "0101010"},
   {"1", "0111111"},
   {"-1", "0111010"},
@@ -60,21 +63,20 @@ struct map CompOpCodes[28] = {
 };
 
 int main(void) {
-  char *line = "AD=M+1;JGT";
-  char *destValue = dest(line);
+  char *destValue = dest();
   char *testResult = linearSearch(destValue, DestOpCodes);
   printf("%s\n", testResult); 
 }
 
-char *linearSearch(char *instruction, struct map opCodes[]) {
+char *linearSearch(char *instruction, static const struct map opCodeArray[]) {
   // linearSearch is fast enough, there is, at most, 28 options
   char *result;
-  result = malloc(strlen(opCodes[0].binaryInstruction) * sizeof(char));
+  result = malloc(opCodeArray[0].binaryInstruction * sizeof(char));
 
-  int arrSize = sizeof(opCodes); 
-  for (int i = 0; i < arrSize; i++) {
-    if (!strcmp(instruction,opCodes[i].instruction)) { // might roll my own strcmp
-      result = opCodes[i].binaryInstruction;
+  int opCodeArraySize = sizeof(opCodeArray) / sizeof(opCode[0]);
+  for (int i = 0; i < opCodeArraySize; i++) {
+    if (instruction == opCodeArray[i].instruction) {
+      result = opCodeArray[i].binaryInstruction;
     }
   }
   
