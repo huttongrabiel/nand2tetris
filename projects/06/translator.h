@@ -6,6 +6,6 @@ struct map {
   char *binaryInstruction;
 };
 
-char *linearSearch(char *, struct map val[]);
+char *linearSearch(char *, struct map val[], int);
 
 #endif

@@ -60,19 +60,34 @@ struct map CompOpCodes[28] = {
 };
 
 int main(void) {
+
+// TODO: Determine which array size to feed, this can also be determined when
+//       deciding which array to pass to the function
+//      
+//       * Select array to pass to function
+//       * Select array size to pass to function
+
   char *line = "AD=M+1;JGT";
   char *destValue = dest(line);
-  char *testResult = linearSearch(destValue, DestOpCodes);
+  char *testResult = linearSearch(destValue, DestOpCodes, 8);
+
+  char *compValue = comp(line);
+  char *compResult = linearSearch(compValue, CompOpCodes,28);
+
+  char *jumpValue = jump(line);
+  char *jumpResult = linearSearch(jumpValue, JumpOpCodes,8);
+
   printf("%s\n", testResult); 
+  printf("%s\n", compResult);
+  printf("%s\n", jumpResult);
 }
 
-char *linearSearch(char *instruction, struct map opCodes[]) {
+char *linearSearch(char *instruction, struct map opCodes[], int arraySize) {
   // linearSearch is fast enough, there is, at most, 28 options
   char *result;
   result = malloc(strlen(opCodes[0].binaryInstruction) * sizeof(char));
 
-  int arrSize = sizeof(opCodes); 
-  for (int i = 0; i < arrSize; i++) {
+  for (int i = 0; i < arraySize; i++) {
     if (!strcmp(instruction,opCodes[i].instruction)) { // might roll my own strcmp
       result = opCodes[i].binaryInstruction;
     }
