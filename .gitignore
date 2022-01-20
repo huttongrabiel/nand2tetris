@@ -3,3 +3,5 @@
 *.out
 *.cmp
 /tools
+*.o
+/projects/06/devNotes
