@@ -18,7 +18,7 @@ struct map DestOpCodes[8] = {
 };
 
 struct map JumpOpCodes[8] = { 
-  {"null", "000"},
+  {"null", "000"}, // modified to nul to fit memory size in parser
   {"JGT", "001"},
   {"JEQ", "010"},
   {"JGE", "011"},
@@ -61,13 +61,11 @@ struct map CompOpCodes[28] = {
 
 int main(void) {
 
-// TODO: Determine which array size to feed, this can also be determined when
-//       deciding which array to pass to the function
-//      
-//       * Select array to pass to function
-//       * Select array size to pass to function
+  char *aInstruction = "@24";
+  char *aInstructionRes = translateAInstruction(aInstruction);
+  printf("%s\n", aInstructionRes);
 
-  char *line = "AD=M+1;JGT";
+  char *line = "AD=M+1;JGT"; // we have an error on our hands when we dont have an '='
   char *destValue = dest(line);
   char *testResult = linearSearch(destValue, DestOpCodes, 8);
 
@@ -80,6 +78,7 @@ int main(void) {
   printf("%s\n", testResult); 
   printf("%s\n", compResult);
   printf("%s\n", jumpResult);
+
 }
 
 char *linearSearch(char *instruction, struct map opCodes[], int arraySize) {
@@ -94,4 +93,61 @@ char *linearSearch(char *instruction, struct map opCodes[], int arraySize) {
   }
   
   return result;
-} 
+}
+
+char *translateAInstruction(char *line) {
+  // convert the decimal value after the @ sign to binary
+  // as of rn, assume line is an a instruction even though that functionality
+  // has not been implemented yet
+  // This will eventually have to do a lookup in the symbol table if it is a not a
+  // number that follows the @. 
+
+  int lenOfLine = strlen(line);
+  
+  // converts char in a instruction to int
+  int decimalValue = 0;
+  int tensPlaceMultiplier = 1;
+  int charToDecimal;
+  int jIndex = strlen(line) - 2;
+
+  for (int i = 1; i < lenOfLine; i++) {
+    charToDecimal = line[i] - '0'; // char to int conversion. just subtract '0'
+    for (int j = jIndex; j > 0; j--) {
+      tensPlaceMultiplier *= 10;
+    }
+    decimalValue += (tensPlaceMultiplier * charToDecimal);
+    tensPlaceMultiplier = 1;
+    jIndex--;
+  }
+
+  // converts int into binary
+  int bitmask = 0x4000; // 100000000000000 in binary (15 bits)
+  char *binaryResult;
+  binaryResult = malloc(15 * sizeof(char));
+  int index = 0;
+  
+  while (bitmask > 0) {
+    binaryResult[index] = bitmask & decimalValue ? '1' : '0';
+    bitmask = bitmask >> 1;
+    index++;
+  }
+
+  return binaryResult;
+}
+
+int instructionSelect(char *line) {
+  // aInstruction = 0
+  // cInstruction = 1
+  // label = 2
+  int typeOfInstruction;
+  if (line[0] == '@') {
+    typeOfInstruction = 0;
+  }
+  else if (line[0] != '(') {
+    typeOfInstruction = 1;
+  }
+  else {
+    typeOfInstruction = 2;
+  }
+  return typeOfInstruction;
+}

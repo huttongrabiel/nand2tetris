@@ -42,23 +42,33 @@ char *dest(char *line) {
   // return chars before '=', or null if '=' not in string
   char *destRes;
   destRes = malloc(3 * sizeof(char)); // dest needs three chars max
+  int equalFlag = 0; // check for equal sign
 
   for (int i = 0; i < strlen(line); i++) {
     if (line[i] != '=') {
+      equalFlag = 1;
       destRes[i] = line[i];
     }
     else {
       break;
     }
   }
-  
-  return destRes;
+
+  // if there is no equal sign there is no destination which means we don't store. set dest to "null" -> "000"
+  if (equalFlag) {
+    return destRes;
+  }
+  else {
+    char *nullVal = "null";
+    return nullVal;
+  }
 }
 
 char *jump(char *line) {
   // return chars after '=' and before ';', or to end depending on instruction
   char *jumpRes;
   jumpRes = malloc(3 * sizeof(char)); // jump is max three characters
+//  jumpRes = "nul";
   int semicolon = 0; 
 
   // if we dont check for a semicolon and the c instruction has no
@@ -95,10 +105,11 @@ char *jump(char *line) {
         break;
       }
     }
-
+    return jumpRes;
   }
-
-  return jumpRes;
+  
+  char *nullVal = "null";
+  return nullVal;
 }
 
 char *comp(char *line) {
