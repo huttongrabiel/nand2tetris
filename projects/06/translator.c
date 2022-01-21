@@ -18,7 +18,7 @@ struct map DestOpCodes[8] = {
 };
 
 struct map JumpOpCodes[8] = { 
-  {"null", "000"}, // modified to nul to fit memory size in parser
+  {"null", "000"}, 
   {"JGT", "001"},
   {"JEQ", "010"},
   {"JGE", "011"},
@@ -58,20 +58,6 @@ struct map CompOpCodes[28] = {
   {"D&M", "1000000"},
   {"D|M", "1010101"}
 };
-
-int main(void) {
-
-  char *aInstruction = "@24";
-  char *aInstructionRes = translateAInstruction(aInstruction);
-  printf("%s\n", aInstructionRes);
-
-  char *line = "AD=M+1;JGT"; // we have an error on our hands when we dont have an '='
-  char *cRes = translateCInstruction(line);
-
-  printf("%s\n", cRes);
-  free(aInstructionRes);
-  free(cRes);
-}
 
 char *linearSearch(char *instruction, struct map opCodes[], int arraySize) {
   // linearSearch is fast enough, there is, at most, 28 options
