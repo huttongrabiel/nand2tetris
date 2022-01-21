@@ -66,19 +66,11 @@ int main(void) {
   printf("%s\n", aInstructionRes);
 
   char *line = "AD=M+1;JGT"; // we have an error on our hands when we dont have an '='
-  char *destValue = dest(line);
-  char *testResult = linearSearch(destValue, DestOpCodes, 8);
+  char *cRes = translateCInstruction(line);
 
-  char *compValue = comp(line);
-  char *compResult = linearSearch(compValue, CompOpCodes,28);
-
-  char *jumpValue = jump(line);
-  char *jumpResult = linearSearch(jumpValue, JumpOpCodes,8);
-
-  printf("%s\n", testResult); 
-  printf("%s\n", compResult);
-  printf("%s\n", jumpResult);
-
+  printf("%s\n", cRes);
+  free(aInstructionRes);
+  free(cRes);
 }
 
 char *linearSearch(char *instruction, struct map opCodes[], int arraySize) {
@@ -134,6 +126,55 @@ char *translateAInstruction(char *line) {
 
   return binaryResult;
 }
+
+char *translateCInstruction(char *line) {
+  // given a c instruction convert it to it's machine language equivalent
+  // 16 bit value
+  // starts with 1111
+  // then comp, dest, jump
+
+  char *cInstruction;
+  cInstruction = malloc(16 * sizeof(char));
+
+  // starts with 1111
+  for (int i = 0; i < 3; i++) {
+    cInstruction[i] = '1';
+  }
+
+  char *destValue = dest(line);
+  char *destBinaryInstruction = linearSearch(destValue, DestOpCodes, 8);
+
+  char *compValue = comp(line);
+  char *compBinaryInstruction = linearSearch(compValue, CompOpCodes, 28);
+
+  char *jumpValue = jump(line);
+  char *jumpBinaryInstruction = linearSearch(jumpValue, JumpOpCodes, 8);
+
+  // placing the comp instruction into its position in the c instruction
+  int compIndex = 0;
+  for (int i = 3; i < 10; i++) {
+    cInstruction[i] = compBinaryInstruction[compIndex];
+    compIndex++;
+  }
+
+  // placing the dest instruction into its position in the c instruction
+  int destIndex = 0;
+  for (int i = 10; i < 13; i++) {
+    cInstruction[i] = destBinaryInstruction[destIndex];
+    destIndex++;
+  }
+
+  // placing the jump instruction into its position in the c instruction
+  int jumpIndex = 0;
+  for (int i = 13; i < 16; i++) {
+    cInstruction[i] = jumpBinaryInstruction[jumpIndex];
+    jumpIndex++;
+  }
+
+  return cInstruction;
+}
+
+
 
 int instructionSelect(char *line) {
   // aInstruction = 0

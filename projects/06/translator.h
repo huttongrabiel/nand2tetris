@@ -9,5 +9,6 @@ struct map {
 char *linearSearch(char *, struct map val[], int);
 int instructionSelect(char *);
 char *translateAInstruction(char *);
+char *translateCInstruction(char *);
 
 #endif
