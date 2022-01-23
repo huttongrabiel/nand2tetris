@@ -34,19 +34,19 @@ int main(int argc, char *argv[]) {
   // and white space which are new lines 
   while (!feof(assemblyCode) && (fgets(line, 80, assemblyCode) != NULL)) {
   
-    char *trimmedLine = trimLine(line); // remove extra blank chars
-
     enterKeyHexValue = line[0] == 0x0d || line[0] == 0x0a || line[0] == 0x0d0a;
 
-    if ((trimmedLine[0] == '/' && trimmedLine[1] == '/') || enterKeyHexValue) {
+    if ((line[0] == '/' && line[1] == '/') || enterKeyHexValue) {
       continue;
     }
     else {
 
+      char *trimmedLine = trimLine(line);
+
       if (trimmedLine[0] == '@') {
         char *storVal;
         storVal = translateAInstruction(trimmedLine);
-        printf("%sfat\n", storVal);
+        printf("%s\n", storVal);
       }
       else {
         char *storVal2;
@@ -64,10 +64,11 @@ int main(int argc, char *argv[]) {
   return 0;
 }
 
+// trim line of blank characters that fgets adds due to large buffer size
 char *trimLine(char *line) { 
   int count = 0;
   for (int j = 0; j < strlen(line); j++) {
-    if (line[j] != ' ') {
+    if (line[j] == ' ') {
       count++;
     }
   }
