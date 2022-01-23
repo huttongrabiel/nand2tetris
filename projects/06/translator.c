@@ -32,7 +32,7 @@ struct map CompOpCodes[28] = {
   {"0", "0101010"},
   {"1", "0111111"},
   {"-1", "0111010"},
-  {"D", "0001100"},
+  {"D", "0001100"}, 
   {"A", "0110000"},
   {"!D", "0001101"},
   {"!A", "0110011"},
@@ -122,7 +122,7 @@ char *translateCInstruction(char *line) {
   char *cInstruction;
   cInstruction = malloc(16 * sizeof(char));
 
-  // starts with 1111
+  // starts with 111
   for (int i = 0; i < 3; i++) {
     cInstruction[i] = '1';
   }

@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "translator.h"
+#include "parser.h"
+#include <string.h>
+#include "assembler.h"
 
 int main(int argc, char *argv[]) {
   // read the file line by line, skip to next line if we come across "//", 
@@ -30,19 +33,55 @@ int main(int argc, char *argv[]) {
   // clear line and repeat. if statement checks for comments, "//", 
   // and white space which are new lines 
   while (!feof(assemblyCode) && (fgets(line, 80, assemblyCode) != NULL)) {
+  
+    char *trimmedLine = trimLine(line); // remove extra blank chars
 
     enterKeyHexValue = line[0] == 0x0d || line[0] == 0x0a || line[0] == 0x0d0a;
 
-    if ((line[0] == '/' && line[1] == '/') || enterKeyHexValue) {
+    if ((trimmedLine[0] == '/' && trimmedLine[1] == '/') || enterKeyHexValue) {
       continue;
     }
     else {
-      printf("%s", line);
+
+      if (trimmedLine[0] == '@') {
+        char *storVal;
+        storVal = translateAInstruction(trimmedLine);
+        printf("%sfat\n", storVal);
+      }
+      else {
+        char *storVal2;
+        storVal2 = translateCInstruction(trimmedLine);
+        printf("%s\n", storVal2);
+      }
+
       line[0] = '\0';
+      free(trimmedLine);
     }
   }
 
   fclose(assemblyCode);
 
   return 0;
+}
+
+char *trimLine(char *line) { 
+  int count = 0;
+  for (int j = 0; j < strlen(line); j++) {
+    if (line[j] != ' ') {
+      count++;
+    }
+  }
+
+  int trimmedLineLen = strlen(line) - count; // total amount of chars - blank chars
+
+  char *trimmedLine;
+  trimmedLine = malloc(trimmedLineLen * sizeof(char));
+
+  for (int i = 0; i < trimmedLineLen; i++) {
+    if (line[i] == ' ') {
+      break;
+    }
+    trimmedLine[i] = line[i];
+  }
+  return trimmedLine;
 }
