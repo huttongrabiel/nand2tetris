@@ -3,6 +3,7 @@
 #include <string.h>
 #include "translator.h"
 #include "parser.h"
+#include "assembler.h"
 
 // struct function defined in translator.h
 
@@ -59,6 +60,7 @@ struct map CompOpCodes[28] = {
   {"D|M", "1010101"}
 };
 
+// returns binary instruction of given assembly instruction
 char *linearSearch(char *instruction, struct map opCodes[], int arraySize) {
   // linearSearch is fast enough, there is, at most, 28 options
   char *result;

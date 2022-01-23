@@ -14,6 +14,7 @@ int main(int argc, char *argv[]) {
   FILE *dotHack; // file to write to
   FILE *assemblyCode; // file to read from
   char line[80]; // give it 80 chars for standard line length
+  char *trimmedLine;
   
   // make sure file is given to assembler
   if (argc != 2) {
@@ -26,12 +27,15 @@ int main(int argc, char *argv[]) {
     fprintf(stderr, "\nERROR: file %s is invalid.\n", argv[1]);
     exit(1);
   }
+
+  // create output file
+  dotHack = fopen("out.hack", "w+");
   
-  int enterKeyHexValue; // UNIX = 0a, WINDOWS = 0x0d0a, MAC = 0x0d
+  int enterKeyHexValue; // UNIX = 0x0a, WINDOWS = 0x0d0a, MAC = 0x0d
 
   // while not at EOF and fgets() does not return NULL, print line.
   // clear line and repeat. if statement checks for comments, "//", 
-  // and white space which are new lines 
+  // and carriage return / line feed (newline) 
   while (!feof(assemblyCode) && (fgets(line, 80, assemblyCode) != NULL)) {
   
     enterKeyHexValue = line[0] == 0x0d || line[0] == 0x0a || line[0] == 0x0d0a;
@@ -41,21 +45,23 @@ int main(int argc, char *argv[]) {
     }
     else {
 
-      char *trimmedLine = trimLine(line);
+      trimmedLine = trimLine(line);
 
       if (trimmedLine[0] == '@') {
-        char *storVal;
-        storVal = translateAInstruction(trimmedLine);
-        printf("%s\n", storVal);
+        char *AInstruction;
+        AInstruction = translateAInstruction(trimmedLine);
+        fputs(AInstruction, dotHack);
+        free(AInstruction);
       }
       else {
-        char *storVal2;
-        storVal2 = translateCInstruction(trimmedLine);
-        printf("%s\n", storVal2);
+        char *CInstruction;
+        CInstruction = translateCInstruction(trimmedLine);
+        fputs(CInstruction, dotHack);
+        free(CInstruction);
       }
-
+      
+      trimmedLine[0] = '\0';
       line[0] = '\0';
-      free(trimmedLine);
     }
   }
 
@@ -68,7 +74,7 @@ int main(int argc, char *argv[]) {
 char *trimLine(char *line) { 
   int count = 0;
   for (int j = 0; j < strlen(line); j++) {
-    if (line[j] == ' ') {
+    if (line[j] == ' ' || line[j] == 0x0d || line[j] == 0x0a || line[j] == 0x0d0a) {
       count++;
     }
   }
