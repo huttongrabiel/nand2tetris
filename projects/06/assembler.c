@@ -7,8 +7,10 @@ int main(int argc, char *argv[]) {
   // skip to next line if white space, otherwise read first char of line and
   // pass to parseAinstruction or parseCInstruction, add output the instruction
   // to the binary file. Clear instruction string, start over again
-
-  FILE *assemblyCode;
+  
+  FILE *dotHack; // file to write to
+  FILE *assemblyCode; // file to read from
+  char line[80]; // give it 80 chars for standard line length
   
   // make sure file is given to assembler
   if (argc != 2) {
@@ -22,10 +24,23 @@ int main(int argc, char *argv[]) {
     exit(1);
   }
   
-  // read file line by line. clear line after converting to binary
-  // instruction. repeat
+  int enterKeyHexValue; // UNIX = 0a, WINDOWS = 0x0d0a, MAC = 0x0d
 
+  // while not at EOF and fgets() does not return NULL, print line.
+  // clear line and repeat. if statement checks for comments, "//", 
+  // and white space which are new lines 
+  while (!feof(assemblyCode) && (fgets(line, 80, assemblyCode) != NULL)) {
 
+    enterKeyHexValue = line[0] == 0x0d || line[0] == 0x0a || line[0] == 0x0d0a;
+
+    if ((line[0] == '/' && line[1] == '/') || enterKeyHexValue) {
+      continue;
+    }
+    else {
+      printf("%s", line);
+      line[0] = '\0';
+    }
+  }
 
   fclose(assemblyCode);
 
