@@ -9,7 +9,7 @@ was really fun and led to a lot more learning. Plus my assembler is a lot faster
 than it would be had I written it in python. 
 
 # 00-06 Folders
-Are all complete. Everything below 06 is hardware description language and bit of 
+All these folders are all complete. Everything below 06 is hardware description language and bit of 
 the hack asssembly language. Go check it out to see how I handle using logic gates
 on virtual hardware. Pretty fun stuff.
 
