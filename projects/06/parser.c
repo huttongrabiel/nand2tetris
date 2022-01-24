@@ -43,15 +43,26 @@ char *dest(char *line) {
   char *destRes;
   destRes = malloc(3 * sizeof(char)); // dest needs three chars max
   int equalFlag = 0; // check for equal sign
-
-  for (int i = 0; i < strlen(line); i++) {
-    if (line[i] != '=') {
+  
+  // check entire string for equal sign  
+  for (int j = 0; j < strlen(line); j++) {
+    if (line[j] == '=') {
       equalFlag = 1;
+    }
+  }
+  
+  // write destres as if there is an equal sign, this will go to end of line
+  // if there is not an equal sign
+  for (int i = 0; i < strlen(line); i++) {
+
+    // if i == 3, break before we go beyond destRes allocated memory
+    if (line[i] != '=' && i != 3) {
       destRes[i] = line[i];
     }
     else {
       break;
     }
+
   }
 
   // if there is no equal sign there is no destination which means we don't store. set dest to "null" -> "000"
@@ -65,10 +76,9 @@ char *dest(char *line) {
 }
 
 char *jump(char *line) {
-  // return chars after '=' and before ';', or to end depending on instruction
+  // return chars after ';' to end of line
   char *jumpRes;
   jumpRes = malloc(3 * sizeof(char)); // jump is max three characters
-//  jumpRes = "nul";
   int semicolon = 0; 
 
   // if we dont check for a semicolon and the c instruction has no
@@ -113,15 +123,22 @@ char *jump(char *line) {
 }
 
 char *comp(char *line) {
-  // return chars after =, other wise return "nul"
+  // return computation characters
   char *compRes;
   compRes = malloc(3 * sizeof(char)); // comp is max three characters
 
-  int flag = 0; // if we encounter the '=' we dont want the above if to execute anymore
+  int flag = 0; // if we encounter the '=' we dont want line 141 to execute anymore
   int index = 0; // separate index for charRes
+  int equalSign = 0; // flag to check if there is an equal sign
+
+  for (int j = 0; j < strlen(line); j++) {
+    if (line[j] == '=') {
+      equalSign = 1;
+    }
+  }
   
   for (int i = 0; i < strlen(line); i++) {
-    if (line[i] != '=' && flag == 0) {
+    if (line[i] != '=' && !flag && equalSign) {
       continue;
     }
     
