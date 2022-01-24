@@ -5,3 +5,4 @@
 /tools
 *.o
 /projects/06/devNotes
+*.hack
