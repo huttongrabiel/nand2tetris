@@ -1,15 +1,13 @@
 CC=gcc
 
-assembler: parser.o translator.o assembler.o symbolTable.o
-  $(CC) -o assembler parser.o translator.o assembler.o symbolTable.o
+assembler: parser.o translator.o assembler.o 
+	$(CC) -o assembler parser.o translator.o assembler.o 
 
-Parser.o: parser.h
+Parser.o: parser.h 
 
-Translator.o: translator.h 
+Translator.o: translator.h  parser.h
 
-Assembler.o: assembler.h
-
-SymbolTable.o: symbolTable.h
+Assembler.o: assembler.h translator.h
 
 clean:
-  rm *.o assembler
+	rm *.o assembler
