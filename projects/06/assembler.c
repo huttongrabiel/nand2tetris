@@ -51,12 +51,14 @@ int main(int argc, char *argv[]) {
         char *AInstruction;
         AInstruction = translateAInstruction(trimmedLine);
         fputs(AInstruction, dotHack);
+        fprintf(dotHack, "%c", '\n');
         free(AInstruction);
       }
       else {
         char *CInstruction;
         CInstruction = translateCInstruction(trimmedLine);
         fputs(CInstruction, dotHack);
+        fprintf(dotHack, "%c", '\n');
         free(CInstruction);
       }
       
