@@ -161,22 +161,3 @@ char *translateCInstruction(char *line) {
 
   return cInstruction;
 }
-
-
-
-int instructionSelect(char *line) {
-  // aInstruction = 0
-  // cInstruction = 1
-  // label = 2
-  int typeOfInstruction;
-  if (line[0] == '@') {
-    typeOfInstruction = 0;
-  }
-  else if (line[0] != '(') {
-    typeOfInstruction = 1;
-  }
-  else {
-    typeOfInstruction = 2;
-  }
-  return typeOfInstruction;
-}
