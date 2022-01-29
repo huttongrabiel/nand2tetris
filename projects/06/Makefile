@@ -1,7 +1,8 @@
 CC=gcc
+CFLAGS= -g
 
 assembler: parser.o translator.o assembler.o 
-	$(CC) -o assembler parser.o translator.o assembler.o 
+	$(CC) -o assembler $(CFLAGS) parser.o translator.o assembler.o 
 
 Parser.o: parser.h 
 
