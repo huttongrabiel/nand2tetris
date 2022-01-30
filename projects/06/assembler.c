@@ -31,7 +31,7 @@ int main(int argc, char *argv[]) {
   // create output file
   dotHack = fopen("out.hack", "w+");
   
-  int enterKeyHexValue; // UNIX = 0x0a, WINDOWS = 0x0d0a, MAC = 0x0d
+  int enterKeyHexValue = 0; // UNIX = 0x0a, WINDOWS = 0x0d0a, MAC = 0x0d
 
   // while not at EOF and fgets() does not return NULL, print line.
   // clear line and repeat. if statement checks for comments, "//", 
@@ -39,8 +39,9 @@ int main(int argc, char *argv[]) {
   while (!feof(assemblyCode) && (fgets(line, 80, assemblyCode) != NULL)) {
   
     enterKeyHexValue = line[0] == 0x0d || line[0] == 0x0a || line[0] == 0x0d0a;
-
-    if ((line[0] == '/' && line[1] == '/') || enterKeyHexValue) {
+    
+    // if comment, newLine, or label, continue
+    if ((line[0] == '/' && line[1] == '/') || enterKeyHexValue || line[0] == '(') {
       continue;
     }
     else {
@@ -62,7 +63,8 @@ int main(int argc, char *argv[]) {
         free(CInstruction);
       }
       
-      trimmedLine[0] = '\0';
+      free(trimmedLine);      
+      trimmedLine = NULL;
       line[0] = '\0';
     }
   }
