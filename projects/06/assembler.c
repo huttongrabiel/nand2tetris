@@ -4,6 +4,7 @@
 #include "parser.h"
 #include <string.h>
 #include "assembler.h"
+#include "symbolTable.h"
 
 int main(int argc, char *argv[]) {
   // read the file line by line, skip to next line if we come across "//", 
@@ -27,6 +28,10 @@ int main(int argc, char *argv[]) {
     fprintf(stderr, "\nERROR: file %s is invalid.\n", argv[1]);
     exit(1);
   }
+
+  int programSymbolStructSize = 0; // in case below function call doesn't return a value
+  programSymbolStructSize = getProgramSymbolStructSize(assemblyCode);
+  printf("%d\n", programSymbolStructSize);
 
   // create output file
   dotHack = fopen("out.hack", "w+");
