@@ -29,9 +29,14 @@ int main(int argc, char *argv[]) {
     exit(1);
   }
 
+// Testing Functions in symbolTable.c
+// ------------------------------------------------------------------------------------
   int programSymbolStructSize = 0; // in case below function call doesn't return a value
   programSymbolStructSize = getProgramSymbolStructSize(assemblyCode);
   printf("%d\n", programSymbolStructSize);
+
+  return 0;
+// -------------------------------------------------------------------------------------
 
   // create output file
   dotHack = fopen("out.hack", "w+");
@@ -80,24 +85,38 @@ int main(int argc, char *argv[]) {
 }
 
 // trim line of blank characters that fgets adds due to large buffer size
+// trimline needs a rewrite because when we have loops we have blank chars
+// to the left and the right of the string that we want. meaning we have to check
+// if char[0] == ' ' and if it does we need to increase our index until line[i]
+// equals '@'
 char *trimLine(char *line) { 
   int count = 0;
   for (int j = 0; j < strlen(line); j++) {
-    if (line[j] == ' ' || line[j] == 0x0d || line[j] == 0x0a || line[j] == 0x0d0a) {
+    if (line[j] == 0x20 || line[j] == 0x0d || line[j] == 0x0a || line[j] == 0x0d0a) {
       count++;
     }
   }
 
+  // setting our starting index postition
+  int startIndex = 0;
+  for (int i = 0; i < strlen(line); i++) {
+    if ((int)line[i] != 0x20) {
+      break;
+    }
+    if ((int)line[i] == 0x20) {
+      startIndex++;
+    }
+  }
+  
   int trimmedLineLen = strlen(line) - count; // total amount of chars - blank chars
 
   char *trimmedLine;
   trimmedLine = malloc(trimmedLineLen * sizeof(char));
-
-  for (int i = 0; i < trimmedLineLen; i++) {
-    if (line[i] == ' ') {
-      break;
-    }
-    trimmedLine[i] = line[i];
+  
+  int lineIndex = 0;
+  for (int i = startIndex; i < trimmedLineLen+startIndex; i++) {
+    trimmedLine[lineIndex] = line[i];
+    lineIndex++;
   }
   return trimmedLine;
 }
