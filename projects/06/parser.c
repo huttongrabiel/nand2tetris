@@ -18,25 +18,21 @@ char *parseAInstruction(char *line) {
 }
 
 char *parseLabel(char *line) {
-  // return value of a label: (label)
+  // given (label), returns @label
   int lenOfLine = strlen(line);
 
   // no idea how long of a name they will give the label so malloc must be
-  // multiplied by the (length of the label - 2) to account for the parentheses
+  // multiplied by the (length of the label - 1) to account for removing one
+  // parentheses and 'changing' the first to an '@'.
   char *label;
-  label = malloc(sizeof(char) * (lenOfLine-2));
-  
-  int labelIndex = 0; // have to track the index separately
+  label = malloc(sizeof(char) * (lenOfLine-1));
+  label[0] = '@';
+
   for (int j = 1; j < lenOfLine-1; j++) {
-    label[labelIndex] = line[j];
-    labelIndex++;
+    label[j] = line[j];
   }
-  
   return label;
 }
-
-// The following three functions are probably not the best way to go about
-// getting each part but it works
 
 char *dest(char *line) {
   // return chars before '=', or null if '=' not in string
