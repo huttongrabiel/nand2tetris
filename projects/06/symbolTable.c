@@ -107,15 +107,6 @@ int isLabel(char *line) {
 
 // check if the line is a variable, '@address'
 int isVariable(char *line) {
-  /*
-    check if the line is a variable
-
-    a line is a variable if:
-      - it does not start with '('
-      - it is not in predefinedSymbols
-      - it does not have char 0-9 follow the @
-  */
-
   // 0 = notVariable, 1 = isVariable
 
   int flag = 0;
@@ -129,7 +120,7 @@ int isVariable(char *line) {
   int sizeOfPreDefSymbols = sizeof(predefinedSymbols) / sizeof (predefinedSymbols[0]);
   for (int i = 0; i < sizeOfPreDefSymbols; i++) {
     if (!strcmp(line, predefinedSymbols[i].instruction)) {
-      flag = 0; // if it exists in the table, break 
+      flag = 0;
       break;
     }
   }
