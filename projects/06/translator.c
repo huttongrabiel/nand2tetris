@@ -158,6 +158,17 @@ char *translateCInstruction(char *line) {
     cInstruction[i] = jumpBinaryInstruction[jumpIndex];
     jumpIndex++;
   }
+  
+  char *null = "null";
+  if (!strcmp(destValue, null)) {
+    free(destValue); 
+  }
+  if (!strcmp(compValue, null)) {
+    free(compValue);
+  }
+  if (!strcmp(destValue, null)) {
+    free(jumpValue);
+  }
 
   return cInstruction;
 }
