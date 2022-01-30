@@ -75,10 +75,7 @@ int getProgramSymbolStructSize(FILE *assemblyCode) {
   int enterKeyHexValue = 0; // UNIX = 0x0a, WINDOWS = 0x0d0a, MAC = 0x0d
   char *trimmedLine;
 
-  // while not at EOF and fgets() does not return NULL, print line.
-  // clear line and repeat. if statement checks for comments, "//", 
-  // and carriage return / line feed (newline) 
-  while (!feof(assemblyCode) && (fgets(line, 80, assemblyCode) != NULL)) {
+   while (!feof(assemblyCode) && (fgets(line, 80, assemblyCode) != NULL)) {
   
     enterKeyHexValue = line[0] == 0x0d || line[0] == 0x0a || line[0] == 0x0d0a;
     
@@ -124,7 +121,7 @@ int isVariable(char *line) {
   int flag = 0;
  
   // if it starts with an @ but does not follow with a number 
-  if (line[0] == '@' && ((int)line[1] > 39 || (int)line[1] < 30)) {
+  if (line[0] == '@' && ((int)line[1] > 0x39 || (int)line[1] < 0x30)) {
     flag = 1;
   }
 
