@@ -70,6 +70,7 @@ char *dest(char *line) {
     return destRes;
   }
   else {
+    free(destRes);
     char *nullVal = "null";
     return nullVal;
   }
