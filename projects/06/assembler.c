@@ -80,6 +80,7 @@ int main(int argc, char *argv[]) {
   }
 
   fclose(assemblyCode);
+  fclose(dotHack);
 
   return 0;
 }
