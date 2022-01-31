@@ -7,24 +7,24 @@
 #include <string.h>
 
 struct map predefinedSymbols[23] = {
-  {"R0", "@0"}, 
-  {"R1", "@1"}, 
-  {"R2", "@2"}, 
-  {"R3", "@3"}, 
-  {"R4", "@4"}, 
-  {"R5", "@5"}, 
-  {"R6", "@6"}, 
-  {"R7", "@7"}, 
-  {"R8", "@8"}, 
-  {"R9", "@9"}, 
-  {"R10", "@10"}, 
-  {"R11", "@11"}, 
-  {"R12", "@12"}, 
-  {"R13", "@13"}, 
-  {"R14", "@14"}, 
-  {"R15", "@15"}, 
-  {"SCREEN", "@16384"}, 
-  {"KBD", "@24576"},
+  {"@R0", "@0"}, 
+  {"@R1", "@1"}, 
+  {"@R2", "@2"}, 
+  {"@R3", "@3"}, 
+  {"@R4", "@4"}, 
+  {"@R5", "@5"}, 
+  {"@R6", "@6"}, 
+  {"@R7", "@7"}, 
+  {"@R8", "@8"}, 
+  {"@R9", "@9"}, 
+  {"@R10", "@10"}, 
+  {"@R11", "@11"}, 
+  {"@R12", "@12"}, 
+  {"@R13", "@13"}, 
+  {"@R14", "@14"}, 
+  {"@R15", "@15"}, 
+  {"@SCREEN", "@16384"}, 
+  {"@KBD", "@24576"},
   {"SP", "0"}, 
   {"LCL", "1"},
   {"ARG", "2"},
@@ -56,26 +56,21 @@ char line[80];
 int getProgramSymbolStructSize(FILE *assemblyCode) {
   // iterate through our input file and count all lines
   // that are labels or variables.
+  
+  // need to rewrite to not count variables/labels it has already seen
 
-  /* Pseudocode 
-    
-    Read Through File (get this code from assembler.c;
-
-    int count = 0;
-    
-    if isLabel():
-      count++;
-    if isVariable():
-      count++;
-
-    return count; 
-
-  */ 
   int programSymbolStructSize = 0;
   int enterKeyHexValue = 0; // UNIX = 0x0a, WINDOWS = 0x0d0a, MAC = 0x0d
   char *trimmedLine;
 
-   while (!feof(assemblyCode) && (fgets(line, 80, assemblyCode) != NULL)) {
+  char **knownVariables = NULL;
+  knownVariables = malloc(128 * sizeof(*knownVariables));
+  int extraSpaceMultiple = 2;
+
+  int variableCount = 0;
+  int duplicateFlag = 0;
+
+  while (!feof(assemblyCode) && (fgets(line, 80, assemblyCode) != NULL)) {
   
     enterKeyHexValue = line[0] == 0x0d || line[0] == 0x0a || line[0] == 0x0d0a;
     
@@ -84,15 +79,48 @@ int getProgramSymbolStructSize(FILE *assemblyCode) {
       continue;
     }
     else {
-
+      
       trimmedLine = trimLine(line);
       if (isVariable(trimmedLine) || isLabel(trimmedLine)) {
-        printf("%s\n", trimmedLine);
-        programSymbolStructSize++;
+
+        if (!isPredefined(trimmedLine)) {
+          if (isLabel(trimmedLine)) {
+            trimmedLine = parseLabel(trimmedLine);
+            knownVariables[variableCount] = trimmedLine;
+          }
+          else {
+            knownVariables[variableCount] = trimmedLine;
+          }
+          
+          programSymbolStructSize++;
+          variableCount++;
+           
+          // check if trimmedLine is a duplicate
+          for (int i = 0; i < variableCount; i++) {
+            for (int j = 0; j < variableCount; j++) {
+              if (strcmp(knownVariables[j], knownVariables[i]) == 0 && i != j) {
+                duplicateFlag = 1;
+              }
+            }
+          }
+
+          if (duplicateFlag) {
+            variableCount--;
+            programSymbolStructSize--;
+          }
+
+          if (variableCount == 128) {
+            knownVariables = realloc(knownVariables, extraSpaceMultiple * 128  * sizeof(*knownVariables));
+            extraSpaceMultiple++;
+          }
+
+        }
       }
     }
     line[0] = '\0';
+    duplicateFlag = 0;
   }
+  free(knownVariables);
   return programSymbolStructSize;
 }
 
@@ -122,6 +150,17 @@ int isVariable(char *line) {
     if (!strcmp(line, predefinedSymbols[i].instruction)) {
       flag = 0;
       break;
+    }
+  }
+  return flag;
+}
+
+int isPredefined(char *line) {
+  int flag = 0;
+  int sizeOfPredefinedSymbols = sizeof(predefinedSymbols) / sizeof(predefinedSymbols[0]);
+  for (int i = 0; i < sizeOfPredefinedSymbols; i++) {
+    if (strcmp(line, predefinedSymbols[i].instruction) == 0) {
+      flag = 1;
     }
   }
   return flag;
