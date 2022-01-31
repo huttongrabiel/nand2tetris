@@ -4,5 +4,6 @@
 int getProgramSymbolStructSize(FILE *);
 int isLabel(char *);
 int isVariable(char *);
+int isPredefined(char *);
 
 #endif
