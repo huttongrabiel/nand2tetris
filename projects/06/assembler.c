@@ -31,9 +31,11 @@ int main(int argc, char *argv[]) {
 
 // Testing Functions in symbolTable.c
 // ------------------------------------------------------------------------------------
-  int programSymbolStructSize = 0; // in case below function call doesn't return a value
-  programSymbolStructSize = getProgramSymbolStructSize(assemblyCode);
-  printf("%d\n", programSymbolStructSize);
+  addLabels(assemblyCode);
+  for (int i = 0; i < 3; i++) {
+    printf("Instruction = %s\n", programSymbols[i].instruction);
+    printf("Binary Instruction = %s\n", programSymbols[i].binaryInstruction);
+  }
 
   return 0;
 // -------------------------------------------------------------------------------------
