@@ -34,11 +34,13 @@ struct map predefinedSymbols[23] = {
 
 struct map *programSymbols;
 
+// global variables
 char **knownVariables;
 int *symbolIndex = NULL;
 int *labelIndexes;
 int labelCount = 0;
 int variableCount = 0;
+int memoryMultiplier = 1;
 
 int getProgramSymbolStructSize(FILE *assemblyCode) {
   // iterate through our input file and count all lines
@@ -130,44 +132,46 @@ int getProgramSymbolStructSize(FILE *assemblyCode) {
   return programSymbolStructSize;
 }
 
-//void addVariables(FILE *assemblyCode) {
-//  char line[80];
-//  int variableAddress = 16;
-//  int index = 0;
-//  int memoryMultiplier = 2;
-//  char *trimmedLine;
-//  int enterKeyHexValue = 0;
-//
-//  while (!feof(assemblyCode) && (fgets(line, 80, assemblyCode) != NULL)) {
-//
-//    enterKeyHexValue = line[0] == 0x0d || line[0] == 0x0a || line[0] == 0x0d0a;
-//
-//    if ((line[0] == '/' && line[1] == '/') || enterKeyHexValue) {
-//      continue;
-//    }
-//    else {
-//      trimmedLine = trimLine(line);
-//
-//      if (isVariable(trimmedLine)) {
-//        knownVariables[index] = parseLabel(trimmedLine);
-//        labelIndexes[index] = programCounter+1;
-//        index++;
-//      }
-//
-//      if (index == 128) {
-//        labelIndexes = realloc(labelIndexes, memoryMultiplier * 128 * sizeof(labelIndexes[0]));
-//        memoryMultiplier++;
-//      }
-//    }
-//  }
-//}
+void addVariables(FILE *assemblyCode) {
+  char line[80];
+  int variableAddress = 16;
+  int index = labelCount;
+  char *trimmedLine;
+  int enterKeyHexValue = 0;
+
+  while (!feof(assemblyCode) && (fgets(line, 80, assemblyCode) != NULL)) {
+
+    enterKeyHexValue = line[0] == 0x0d || line[0] == 0x0a || line[0] == 0x0d0a;
+    if ((line[0] == '/' && line[1] == '/') || enterKeyHexValue) {
+      continue;
+    }
+    else {
+      trimmedLine = trimLine(line);
+      
+      int symbolCount = labelCount + variableCount;
+
+      if (isVariable(trimmedLine) && !isDefined(trimmedLine, programSymbols, symbolCount)) {
+        programSymbols[index].instruction = trimmedLine;
+        char *variableAddressAsChar = convertIntToChar(variableAddress);
+        programSymbols[index].binaryInstruction = variableAddressAsChar;
+        variableAddress++;
+        index++;
+        variableCount++;
+      }
+
+      if (index == 128 * memoryMultiplier) {
+        memoryMultiplier++;
+        programSymbols = realloc(programSymbols, 128 * memoryMultiplier * sizeof(char));
+      }
+    }
+  }
+}
 
 void addLabels(FILE *assemblyCode) {
   
   char line[80];
   int programCounter = 1;
   int index = 0;
-  int memoryMultiplier = 2;
   char *trimmedLine;
   int enterKeyHexValue = 0;
 
@@ -178,7 +182,6 @@ void addLabels(FILE *assemblyCode) {
 
     enterKeyHexValue = line[0] == 0x0d || line[0] == 0x0a || line[0] == 0x0d0a;
 
-    // in this pass over the file, we WANT labels counted 
     if ((line[0] == '/' && line[1] == '/') || enterKeyHexValue) {
       continue;
     }
@@ -190,22 +193,22 @@ void addLabels(FILE *assemblyCode) {
         programSymbols[index].instruction = parseLabel(trimmedLine);
         char *programCounterAsChar = convertIntToChar(programCounter);
         programSymbols[index].binaryInstruction = programCounterAsChar;
-        index++;
+        index++; 
+        labelCount++;
       }
 
-      if (index == 128) {
-        labelIndexes = realloc(labelIndexes, memoryMultiplier * 128 * sizeof(labelIndexes[0]));
+      if (index == 128 * memoryMultiplier) {
         memoryMultiplier++;
+        programSymbols = realloc(programSymbols, 128 * memoryMultiplier * sizeof(struct map));
       }
     }
   }
 }
 
-int isDefined(char *line, char **array, int arraySize) {
+int isDefined(char *line, struct map *mapArray, int arraySize) {
   int flag = 0;
-  printf("Size of Array = %d\n", arraySize);
   for (int i = 0; i < arraySize; i++) {
-    if (!strcmp(line, array[i])) {
+    if (!strcmp(line, mapArray[i].instruction)) {
       flag = 1;
     }
   }
@@ -271,6 +274,5 @@ char *convertIntToChar(int val) {
     val /= 10;
     index--;
   }
-  printf("CharInt = %s\n", charInt);
   return charInt;
 }
