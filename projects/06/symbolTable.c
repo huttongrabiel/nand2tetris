@@ -37,7 +37,6 @@ struct map *programSymbols;
 // global variables
 char **knownVariables;
 int *symbolIndex = NULL;
-int *labelIndexes;
 int labelCount = 0;
 int variableCount = 0;
 int memoryMultiplier = 1;
@@ -161,7 +160,7 @@ void addVariables(FILE *assemblyCode) {
 
       if (index == 128 * memoryMultiplier) {
         memoryMultiplier++;
-        programSymbols = realloc(programSymbols, 128 * memoryMultiplier * sizeof(char));
+        programSymbols = realloc(programSymbols, 128 * memoryMultiplier * sizeof(struct map));
       }
     }
   }
@@ -176,7 +175,6 @@ void addLabels(FILE *assemblyCode) {
   int enterKeyHexValue = 0;
 
   programSymbols = malloc(128 * sizeof(struct map));
-  labelIndexes = malloc(128 * sizeof(int));
 
   while (!feof(assemblyCode) && (fgets(line, 80, assemblyCode) != NULL)) {
 
