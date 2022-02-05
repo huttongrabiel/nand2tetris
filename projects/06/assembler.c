@@ -32,7 +32,9 @@ int main(int argc, char *argv[]) {
 // Testing Functions in symbolTable.c
 // ------------------------------------------------------------------------------------
   addLabels(assemblyCode);
-  for (int i = 0; i < 3; i++) {
+  rewind(assemblyCode); // starts reading from the beginning of assemblyCode again
+  addVariables(assemblyCode);
+  for (int i = 0; i < 4; i++) {
     printf("Instruction = %s\n", programSymbols[i].instruction);
     printf("Binary Instruction = %s\n", programSymbols[i].binaryInstruction);
   }
