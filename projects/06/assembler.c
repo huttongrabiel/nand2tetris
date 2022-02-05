@@ -34,7 +34,7 @@ int main(int argc, char *argv[]) {
   addLabels(assemblyCode);
   rewind(assemblyCode); // starts reading from the beginning of assemblyCode again
   addVariables(assemblyCode);
-  for (int i = 0; i < 4; i++) {
+  for (int i = 0; i < 500; i++) {
     printf("Instruction = %s\n", programSymbols[i].instruction);
     printf("Binary Instruction = %s\n", programSymbols[i].binaryInstruction);
   }
