@@ -13,6 +13,6 @@ int isPredefined(char *);
 char *convertIntToChar(int);
 void addLabels(FILE *);
 void addVariables(FILE *);
-int isDefined(char *, char **, int);
+int isDefined(char *, struct map *, int);
 
 #endif
