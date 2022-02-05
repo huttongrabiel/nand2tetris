@@ -32,39 +32,29 @@ struct map predefinedSymbols[23] = {
   {"THAT", "4"} 
 };
 
-//struct map *programSymbols;
+struct map *programSymbols;
 
-//void *fillSymbolTable(char *line, int programSymbolSize) {
-//  // programSymbolSize should be the amount of symbols in the file
-//
-//  programSymbols = malloc(programSymbolSize * sizeof(struct map));
-//  
-//  for (int i = 0; i < programSymbolSize; i++) {
-//    programSymbols[i].instruction = malloc(strlen(line) * sizeof(char));
-//    if (isLabel(line)) {
-//      programSymbols[i].binaryInstruction = parseLabel(line);
-//    }
-//    else if (isVariable(line)) {
-//      programSymbols[i].binaryInstruciton = parseAInstruction(line);
-//    }
-//    programSymbolSize[i].instruction = line;
-//    programSymbolSize[i].binaryInstruction = ;
-//  }
-//}
+char **knownVariables;
+int *symbolIndex = NULL;
+int *labelIndexes;
+int labelCount = 0;
+int variableCount = 0;
 
-char line[80];
 int getProgramSymbolStructSize(FILE *assemblyCode) {
   // iterate through our input file and count all lines
   // that are labels or variables.
-  
-  // need to rewrite to not count variables/labels it has already seen
-
+  char line[80];  
+  int programCounter = 0;
+  int variableCounter = 16;  
   int programSymbolStructSize = 0;
   int enterKeyHexValue = 0; // UNIX = 0x0a, WINDOWS = 0x0d0a, MAC = 0x0d
   char *trimmedLine;
+  int intIndex = 0;
 
-  char **knownVariables = NULL;
+//  char **knownVariables = NULL;
   knownVariables = malloc(128 * sizeof(*knownVariables));
+  symbolIndex = malloc(128 * sizeof(int));
+
   int extraSpaceMultiple = 2;
 
   int variableCount = 0;
@@ -80,6 +70,8 @@ int getProgramSymbolStructSize(FILE *assemblyCode) {
     }
     else {
       
+      programCounter++;
+
       trimmedLine = trimLine(line);
       if (isVariable(trimmedLine) || isLabel(trimmedLine)) {
 
@@ -108,9 +100,23 @@ int getProgramSymbolStructSize(FILE *assemblyCode) {
             variableCount--;
             programSymbolStructSize--;
           }
+          else {
+            if (isLabel(trimLine(line))) {
+              printf("Program Counter Plus One = %d\n", programCounter + 1);
+              symbolIndex[intIndex] = programCounter + 1;
+            }
+            else if (isVariable(trimmedLine)) {
+              printf("Variable Counter = %d\n", variableCounter);
+              symbolIndex[intIndex] = variableCounter;
+              variableCounter++;
+            }
+            printf("Int Index = %d\n", intIndex);
+            intIndex++;
+          }
 
           if (variableCount == 128) {
             knownVariables = realloc(knownVariables, extraSpaceMultiple * 128  * sizeof(*knownVariables));
+            symbolIndex = realloc(symbolIndex, extraSpaceMultiple * 128 * sizeof(int));
             extraSpaceMultiple++;
           }
 
@@ -120,8 +126,90 @@ int getProgramSymbolStructSize(FILE *assemblyCode) {
     line[0] = '\0';
     duplicateFlag = 0;
   }
-  free(knownVariables);
+//  free(knownVariables);
   return programSymbolStructSize;
+}
+
+//void addVariables(FILE *assemblyCode) {
+//  char line[80];
+//  int variableAddress = 16;
+//  int index = 0;
+//  int memoryMultiplier = 2;
+//  char *trimmedLine;
+//  int enterKeyHexValue = 0;
+//
+//  while (!feof(assemblyCode) && (fgets(line, 80, assemblyCode) != NULL)) {
+//
+//    enterKeyHexValue = line[0] == 0x0d || line[0] == 0x0a || line[0] == 0x0d0a;
+//
+//    if ((line[0] == '/' && line[1] == '/') || enterKeyHexValue) {
+//      continue;
+//    }
+//    else {
+//      trimmedLine = trimLine(line);
+//
+//      if (isVariable(trimmedLine)) {
+//        knownVariables[index] = parseLabel(trimmedLine);
+//        labelIndexes[index] = programCounter+1;
+//        index++;
+//      }
+//
+//      if (index == 128) {
+//        labelIndexes = realloc(labelIndexes, memoryMultiplier * 128 * sizeof(labelIndexes[0]));
+//        memoryMultiplier++;
+//      }
+//    }
+//  }
+//}
+
+void addLabels(FILE *assemblyCode) {
+  
+  char line[80];
+  int programCounter = 1;
+  int index = 0;
+  int memoryMultiplier = 2;
+  char *trimmedLine;
+  int enterKeyHexValue = 0;
+
+  programSymbols = malloc(128 * sizeof(struct map));
+  labelIndexes = malloc(128 * sizeof(int));
+
+  while (!feof(assemblyCode) && (fgets(line, 80, assemblyCode) != NULL)) {
+
+    enterKeyHexValue = line[0] == 0x0d || line[0] == 0x0a || line[0] == 0x0d0a;
+
+    // in this pass over the file, we WANT labels counted 
+    if ((line[0] == '/' && line[1] == '/') || enterKeyHexValue) {
+      continue;
+    }
+    else {
+      trimmedLine = trimLine(line);
+      programCounter++;
+
+      if (isLabel(trimmedLine)) {
+        programSymbols[index].instruction = parseLabel(trimmedLine);
+        char *programCounterAsChar = convertIntToChar(programCounter);
+        programSymbols[index].binaryInstruction = programCounterAsChar;
+        index++;
+      }
+
+      if (index == 128) {
+        labelIndexes = realloc(labelIndexes, memoryMultiplier * 128 * sizeof(labelIndexes[0]));
+        memoryMultiplier++;
+      }
+    }
+  }
+}
+
+int isDefined(char *line, char **array, int arraySize) {
+  int flag = 0;
+  printf("Size of Array = %d\n", arraySize);
+  for (int i = 0; i < arraySize; i++) {
+    if (!strcmp(line, array[i])) {
+      flag = 1;
+    }
+  }
+  return flag;
 }
 
 // check if the line is a '(label)'
@@ -164,4 +252,25 @@ int isPredefined(char *line) {
     }
   }
   return flag;
+}
+
+// convert integer to string (65 -> "65")
+char *convertIntToChar(int val) {
+  int size = 0;
+  int valCopy = val;
+  while (valCopy > 0) {
+    valCopy /= 10;
+    size++;
+  }
+  
+  char *charInt = malloc(size * sizeof(char));
+  int index = size-1;
+
+  while (val > 0) {
+    charInt[index] = (val % 10) + '0';
+    val /= 10;
+    index--;
+  }
+  printf("CharInt = %s\n", charInt);
+  return charInt;
 }
