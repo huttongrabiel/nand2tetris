@@ -3,10 +3,11 @@
 
 extern char **knownVariables;
 extern int labelCount;
+extern int variableCount;
 extern int *labelIndexes;
 extern struct map *programSymbols;
+extern struct map predefinedSymbols[];
 
-int getProgramSymbolStructSize(FILE *);
 int isLabel(char *);
 int isVariable(char *);
 int isPredefined(char *);
