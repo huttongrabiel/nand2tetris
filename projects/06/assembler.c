@@ -29,22 +29,15 @@ int main(int argc, char *argv[]) {
     exit(1);
   }
 
-// Testing Functions in symbolTable.c
-// ------------------------------------------------------------------------------------
-  addLabels(assemblyCode);
-  rewind(assemblyCode); // starts reading from the beginning of assemblyCode again
-  addVariables(assemblyCode);
-  for (int i = 0; i < 500; i++) {
-    printf("Instruction = %s\n", programSymbols[i].instruction);
-    printf("Binary Instruction = %s\n", programSymbols[i].binaryInstruction);
-  }
-
-  return 0;
-// -------------------------------------------------------------------------------------
-
   // create output file
   dotHack = fopen("out.hack", "w+");
-  
+
+  // filling in symbol table
+  addLabels(assemblyCode);
+  rewind(assemblyCode);
+  addVariables(assemblyCode);
+  rewind(assemblyCode);
+
   int enterKeyHexValue = 0; // UNIX = 0x0a, WINDOWS = 0x0d0a, MAC = 0x0d
 
   // while not at EOF and fgets() does not return NULL, print line.
@@ -59,12 +52,24 @@ int main(int argc, char *argv[]) {
       continue;
     }
     else {
-
+      
       trimmedLine = trimLine(line);
 
       if (trimmedLine[0] == '@') {
         char *AInstruction;
-        AInstruction = translateAInstruction(trimmedLine);
+        int symbolCount = labelCount + variableCount;
+
+        if (isDefined(trimmedLine, programSymbols, symbolCount)) {
+          int indexInProgramSymbols = indexOf(trimmedLine, programSymbols, symbolCount);
+          AInstruction = translateAInstruction(programSymbols[indexInProgramSymbols].binaryInstruction);
+        }
+        else if (isPredefined(trimmedLine)) {
+          int indexInPredefinedSymbols = indexOf(trimmedLine, predefinedSymbols, 23);
+          AInstruction = translateAInstruction(predefinedSymbols[indexInPredefinedSymbols].binaryInstruction);
+        }
+        else {
+          AInstruction = translateAInstruction(trimmedLine);
+        }
         fputs(AInstruction, dotHack);
         fprintf(dotHack, "%c", '\n');
         free(AInstruction);
@@ -77,7 +82,7 @@ int main(int argc, char *argv[]) {
         free(CInstruction);
       }
       
-      free(trimmedLine);      
+      free(trimmedLine);
       trimmedLine = NULL;
       line[0] = '\0';
     }
@@ -96,9 +101,15 @@ int main(int argc, char *argv[]) {
 // equals '@'
 char *trimLine(char *line) { 
   int count = 0;
-  for (int j = 0; j < strlen(line); j++) {
+  int countBlankChars = 0;
+  int commentStartIndex = getCommentIndex(line);
+
+  for (int j = 0; j < commentStartIndex; j++) {
     if (line[j] == 0x20 || line[j] == 0x0d || line[j] == 0x0a || line[j] == 0x0d0a) {
       count++;
+    }
+    if (line[j] == 0x20) {
+      countBlankChars++;
     }
   }
 
@@ -113,15 +124,39 @@ char *trimLine(char *line) {
     }
   }
   
-  int trimmedLineLen = strlen(line) - count; // total amount of chars - blank chars
+  int trimmedLineLen = commentStartIndex - count; // total amount of chars - blank chars
 
-  char *trimmedLine;
-  trimmedLine = malloc(trimmedLineLen * sizeof(char));
-  
+  char *trimmedLine = NULL;
+  trimmedLine = malloc(trimmedLineLen+1 * sizeof(char));
+
+  trimmedLine[trimmedLineLen] = '\0'; 
+
   int lineIndex = 0;
   for (int i = startIndex; i < trimmedLineLen+startIndex; i++) {
     trimmedLine[lineIndex] = line[i];
     lineIndex++;
   }
+
   return trimmedLine;
+}
+
+int indexOf(char *line, struct map *mapArr, int mapArrSize) {
+  int index = 0;
+  for (int i = 0; i < mapArrSize; i++) {
+    if (!strcmp(mapArr[i].instruction, line)) {
+      index = i;
+      break;
+    }
+  }
+  return index;
+}
+
+int getCommentIndex(char *line) {
+  int commentStartIndex = strlen(line);
+  for (int i = 0; i < strlen(line)-1; i++) {
+    if (line[i] == '/' && line[i+1] == '/') {
+      commentStartIndex = i;
+    }
+  }
+  return commentStartIndex;
 }
