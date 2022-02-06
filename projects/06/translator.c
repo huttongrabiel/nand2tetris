@@ -118,25 +118,26 @@ char *translateAInstruction(char *line) {
 char *translateCInstruction(char *line) {
   // given a c instruction convert it to it's machine language equivalent
   // 16 bit value
-  // starts with 1111
+  // starts with 111
   // then comp, dest, jump
 
   char *cInstruction;
   cInstruction = malloc(16 * sizeof(char));
+  
 
   // starts with 111
   for (int i = 0; i < 3; i++) {
     cInstruction[i] = '1';
   }
 
-  char *destValue = dest(line);
-  char *destBinaryInstruction = linearSearch(destValue, DestOpCodes, 8);
+//  char *destValue = dest(line);
+//  char *destBinaryInstruction = linearSearch(destValue, DestOpCodes, 8);
 
   char *compValue = comp(line);
   char *compBinaryInstruction = linearSearch(compValue, CompOpCodes, 28);
 
-  char *jumpValue = jump(line);
-  char *jumpBinaryInstruction = linearSearch(jumpValue, JumpOpCodes, 8);
+//  char *jumpValue = jump(line);
+//  char *jumpBinaryInstruction = linearSearch(jumpValue, JumpOpCodes, 8);
 
   // placing the comp instruction into its position in the c instruction
   int compIndex = 0;
@@ -144,6 +145,10 @@ char *translateCInstruction(char *line) {
     cInstruction[i] = compBinaryInstruction[compIndex];
     compIndex++;
   }
+//  free(compBinaryInstruction);
+
+  char *destValue = dest(line);
+  char *destBinaryInstruction = linearSearch(destValue, DestOpCodes, 8);
 
   // placing the dest instruction into its position in the c instruction
   int destIndex = 0;
@@ -151,6 +156,10 @@ char *translateCInstruction(char *line) {
     cInstruction[i] = destBinaryInstruction[destIndex];
     destIndex++;
   }
+//  free(destBinaryInstruction);
+
+  char *jumpValue = jump(line);
+  char *jumpBinaryInstruction = linearSearch(jumpValue, JumpOpCodes, 8);
 
   // placing the jump instruction into its position in the c instruction
   int jumpIndex = 0;
@@ -158,17 +167,7 @@ char *translateCInstruction(char *line) {
     cInstruction[i] = jumpBinaryInstruction[jumpIndex];
     jumpIndex++;
   }
-  
-  char *null = "null";
-  if (!strcmp(destValue, null)) {
-    free(destValue); 
-  }
-  if (!strcmp(compValue, null)) {
-    free(compValue);
-  }
-  if (!strcmp(destValue, null)) {
-    free(jumpValue);
-  }
+//  free(jumpBinaryInstruction);
 
   return cInstruction;
 }
