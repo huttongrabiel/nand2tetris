@@ -48,7 +48,7 @@ int main(int argc, char *argv[]) {
     enterKeyHexValue = line[0] == 0x0d || line[0] == 0x0a || line[0] == 0x0d0a;
     
     // if comment, newLine, or label, continue
-    if ((line[0] == '/' && line[1] == '/') || enterKeyHexValue || line[0] == '(') {
+    if ((line[0] == '/' && line[1] == '/') || enterKeyHexValue || line[0] == '(' || line[0] == '.') {
       continue;
     }
     else {
