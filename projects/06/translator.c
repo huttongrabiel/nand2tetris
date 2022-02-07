@@ -103,9 +103,10 @@ char *translateAInstruction(char *line) {
   // converts int into binary
   int bitmask = 0x8000; // 1000000000000000 in binary (16 bits)
   char *binaryResult;
-  binaryResult = malloc(16 * sizeof(char));
+  binaryResult = malloc(17 * sizeof(char));
+  binaryResult[16] = '\0';
+
   int index = 0;
-  
   while (bitmask > 0) {
     binaryResult[index] = bitmask & decimalValue ? '1' : '0';
     bitmask = bitmask >> 1;
