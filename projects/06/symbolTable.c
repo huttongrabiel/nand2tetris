@@ -25,11 +25,11 @@ struct map predefinedSymbols[23] = {
   {"@R15", "@15"}, 
   {"@SCREEN", "@16384"}, 
   {"@KBD", "@24576"},
-  {"SP", "@0"}, 
-  {"LCL", "@1"},
-  {"ARG", "@2"},
-  {"THIS", "@3"},
-  {"THAT", "@4"} 
+  {"@SP", "@0"}, 
+  {"@LCL", "@1"},
+  {"@ARG", "@2"},
+  {"@THIS", "@3"},
+  {"@THAT", "@4"} 
 };
 
 struct map *programSymbols;
@@ -90,12 +90,12 @@ void addLabels(FILE *assemblyCode) {
 
     enterKeyHexValue = line[0] == 0x0d || line[0] == 0x0a || line[0] == 0x0d0a;
 
-    if ((line[0] == '/' && line[1] == '/') || enterKeyHexValue) {
+    if ((line[0] == '/' && line[1] == '/') || enterKeyHexValue || line[0] == '.') {
       continue;
     }
     else {
       trimmedLine = trimLine(line);
-
+      
       if (isLabel(trimmedLine)) {
         programSymbols[index].instruction = parseLabel(trimmedLine);
         char *programCounterAsChar = convertIntToChar(programCounter);
