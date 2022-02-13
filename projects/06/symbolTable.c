@@ -1,9 +1,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "parser.h"
-#include "symbolTable.h"
 #include "assembler.h"
 #include "translator.h"
+#include "symbolTable.h"
 #include <string.h>
 
 struct map predefinedSymbols[23] = {
@@ -25,103 +25,102 @@ struct map predefinedSymbols[23] = {
   {"@R15", "@15"}, 
   {"@SCREEN", "@16384"}, 
   {"@KBD", "@24576"},
-  {"SP", "0"}, 
-  {"LCL", "1"},
-  {"ARG", "2"},
-  {"THIS", "3"},
-  {"THAT", "4"} 
+  {"@SP", "@0"}, 
+  {"@LCL", "@1"},
+  {"@ARG", "@2"},
+  {"@THIS", "@3"},
+  {"@THAT", "@4"} 
 };
 
-//struct map *programSymbols;
+struct map *programSymbols;
 
-//void *fillSymbolTable(char *line, int programSymbolSize) {
-//  // programSymbolSize should be the amount of symbols in the file
-//
-//  programSymbols = malloc(programSymbolSize * sizeof(struct map));
-//  
-//  for (int i = 0; i < programSymbolSize; i++) {
-//    programSymbols[i].instruction = malloc(strlen(line) * sizeof(char));
-//    if (isLabel(line)) {
-//      programSymbols[i].binaryInstruction = parseLabel(line);
-//    }
-//    else if (isVariable(line)) {
-//      programSymbols[i].binaryInstruciton = parseAInstruction(line);
-//    }
-//    programSymbolSize[i].instruction = line;
-//    programSymbolSize[i].binaryInstruction = ;
-//  }
-//}
+// global variables
+int *symbolIndex = NULL;
+int labelCount = 0;
+int variableCount = 0;
+int memoryMultiplier = 1;
 
-char line[80];
-int getProgramSymbolStructSize(FILE *assemblyCode) {
-  // iterate through our input file and count all lines
-  // that are labels or variables.
-  
-  // need to rewrite to not count variables/labels it has already seen
-
-  int programSymbolStructSize = 0;
-  int enterKeyHexValue = 0; // UNIX = 0x0a, WINDOWS = 0x0d0a, MAC = 0x0d
+void addVariables(FILE *assemblyCode) {
+  char line[80];
+  int variableAddress = 16;
+  int index = labelCount;
   char *trimmedLine;
-
-  char **knownVariables = NULL;
-  knownVariables = malloc(128 * sizeof(*knownVariables));
-  int extraSpaceMultiple = 2;
-
-  int variableCount = 0;
-  int duplicateFlag = 0;
+  int enterKeyHexValue = 0;
 
   while (!feof(assemblyCode) && (fgets(line, 80, assemblyCode) != NULL)) {
-  
+
     enterKeyHexValue = line[0] == 0x0d || line[0] == 0x0a || line[0] == 0x0d0a;
-    
-    // in this pass over the file, we WANT labels counted 
     if ((line[0] == '/' && line[1] == '/') || enterKeyHexValue) {
       continue;
     }
     else {
-      
       trimmedLine = trimLine(line);
-      if (isVariable(trimmedLine) || isLabel(trimmedLine)) {
+      
+      int symbolCount = labelCount + variableCount;
 
-        if (!isPredefined(trimmedLine)) {
-          if (isLabel(trimmedLine)) {
-            trimmedLine = parseLabel(trimmedLine);
-            knownVariables[variableCount] = trimmedLine;
-          }
-          else {
-            knownVariables[variableCount] = trimmedLine;
-          }
-          
-          programSymbolStructSize++;
-          variableCount++;
-           
-          // check if trimmedLine is a duplicate
-          for (int i = 0; i < variableCount; i++) {
-            for (int j = 0; j < variableCount; j++) {
-              if (strcmp(knownVariables[j], knownVariables[i]) == 0 && i != j) {
-                duplicateFlag = 1;
-              }
-            }
-          }
+      if (isVariable(trimmedLine) && !isDefined(trimmedLine, programSymbols, symbolCount)) {
+        programSymbols[index].instruction = trimmedLine;
+        char *variableAddressAsChar = convertIntToChar(variableAddress);
+        programSymbols[index].binaryInstruction = variableAddressAsChar;
+        variableAddress++;
+        index++;
+        variableCount++;
+      }
 
-          if (duplicateFlag) {
-            variableCount--;
-            programSymbolStructSize--;
-          }
-
-          if (variableCount == 128) {
-            knownVariables = realloc(knownVariables, extraSpaceMultiple * 128  * sizeof(*knownVariables));
-            extraSpaceMultiple++;
-          }
-
-        }
+      if (index == 128 * memoryMultiplier) {
+        memoryMultiplier++;
+        programSymbols = realloc(programSymbols, 128 * memoryMultiplier * sizeof(struct map));
       }
     }
-    line[0] = '\0';
-    duplicateFlag = 0;
   }
-  free(knownVariables);
-  return programSymbolStructSize;
+}
+
+void addLabels(FILE *assemblyCode) {
+  
+  char line[80];
+  int programCounter = 0;
+  int index = 0;
+  char *trimmedLine = NULL;
+  int enterKeyHexValue = 0;
+
+  programSymbols = malloc(128 * sizeof(struct map));
+
+  while (!feof(assemblyCode) && (fgets(line, 80, assemblyCode) != NULL)) {
+
+    enterKeyHexValue = line[0] == 0x0d || line[0] == 0x0a || line[0] == 0x0d0a;
+
+    if ((line[0] == '/' && line[1] == '/') || enterKeyHexValue || line[0] == '.') {
+      continue;
+    }
+    else {
+      trimmedLine = trimLine(line);
+
+      if (isLabel(trimmedLine)) {
+        programSymbols[index].instruction = parseLabel(trimmedLine);
+        char *programCounterAsChar = convertIntToChar(programCounter);
+        programSymbols[index].binaryInstruction = programCounterAsChar;
+        index++; 
+        labelCount++;
+        programCounter--;
+      }
+
+      if (index == 128 * memoryMultiplier) {
+        memoryMultiplier++;
+        programSymbols = realloc(programSymbols, 128 * memoryMultiplier * sizeof(struct map));
+      }
+      programCounter++;
+    }
+  }
+}
+
+int isDefined(char *line, struct map *mapArray, int arraySize) {
+  int flag = 0;
+  for (int i = 0; i < arraySize; i++) {
+    if (!strcmp(line, mapArray[i].instruction)) {
+      flag = 1;
+    }
+  }
+  return flag;
 }
 
 // check if the line is a '(label)'
@@ -164,4 +163,26 @@ int isPredefined(char *line) {
     }
   }
   return flag;
+}
+
+// convert integer to string (65 -> "@65")
+char *convertIntToChar(int val) {
+  int size = 0;
+  int valCopy = val;
+  while (valCopy > 0) {
+    valCopy /= 10;
+    size++;
+  }
+  
+  char *charInt = malloc(size+2 * sizeof(char));
+  charInt[0] = '@';
+  charInt[size+1] = '\0';
+  
+  int index = size;
+  while (val > 0) {
+    charInt[index] = (val % 10) + '0';
+    val /= 10;
+    index--;
+  }
+  return charInt;
 }
