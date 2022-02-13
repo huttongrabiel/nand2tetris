@@ -35,7 +35,6 @@ struct map predefinedSymbols[23] = {
 struct map *programSymbols;
 
 // global variables
-char **knownVariables;
 int *symbolIndex = NULL;
 int labelCount = 0;
 int variableCount = 0;
@@ -81,7 +80,7 @@ void addLabels(FILE *assemblyCode) {
   char line[80];
   int programCounter = 0;
   int index = 0;
-  char *trimmedLine;
+  char *trimmedLine = NULL;
   int enterKeyHexValue = 0;
 
   programSymbols = malloc(128 * sizeof(struct map));
@@ -95,7 +94,7 @@ void addLabels(FILE *assemblyCode) {
     }
     else {
       trimmedLine = trimLine(line);
-      
+
       if (isLabel(trimmedLine)) {
         programSymbols[index].instruction = parseLabel(trimmedLine);
         char *programCounterAsChar = convertIntToChar(programCounter);
@@ -175,8 +174,9 @@ char *convertIntToChar(int val) {
     size++;
   }
   
-  char *charInt = malloc(size+1 * sizeof(char));
+  char *charInt = malloc(size+2 * sizeof(char));
   charInt[0] = '@';
+  charInt[size+1] = '\0';
   
   int index = size;
   while (val > 0) {

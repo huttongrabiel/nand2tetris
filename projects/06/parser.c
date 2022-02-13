@@ -25,8 +25,9 @@ char *parseLabel(char *line) {
   // multiplied by the (length of the label - 1) to account for removing one
   // parentheses and 'changing' the first to an '@'.
   char *label;
-  label = malloc(sizeof(char) * (lenOfLine-1));
+  label = malloc(sizeof(char) * (lenOfLine));
   label[0] = '@';
+  label[lenOfLine-1] = '\0';
 
   for (int j = 1; j < lenOfLine-1; j++) {
     label[j] = line[j];

@@ -63,7 +63,7 @@ struct map CompOpCodes[28] = {
 // returns binary instruction of given assembly instruction
 char *linearSearch(char *instruction, struct map opCodes[], int arraySize) {
   // linearSearch is fast enough, there is, at most, 28 options
-  char *result;
+  char *result = NULL;
   result = malloc(strlen(opCodes[0].binaryInstruction) * sizeof(char));
 
   for (int i = 0; i < arraySize; i++) {
@@ -83,21 +83,26 @@ char *translateAInstruction(char *line) {
   // number that follows the @. 
 
   int lenOfLine = strlen(line);
-  
+
   // converts char in a instruction to int
   int decimalValue = 0;
   int tensPlaceMultiplier = 1;
-  int charToDecimal;
+  int charToDecimal = 0;
   int jIndex = strlen(line) - 2;
 
   for (int i = 1; i < lenOfLine; i++) {
-    charToDecimal = line[i] - '0'; // char to int conversion. just subtract '0'
+    charToDecimal += line[i] - '0'; // char to int conversion. just subtract '0'
+    if (charToDecimal == 79) {
+      printf("Line = %s\n", line);
+      printf("i = %d\n", i);
+    }
     for (int j = jIndex; j > 0; j--) {
       tensPlaceMultiplier *= 10;
     }
     decimalValue += (tensPlaceMultiplier * charToDecimal);
     tensPlaceMultiplier = 1;
     jIndex--;
+    charToDecimal = 0;
   }
 
   // converts int into binary
@@ -122,8 +127,9 @@ char *translateCInstruction(char *line) {
   // starts with 111
   // then comp, dest, jump
 
-  char *cInstruction;
-  cInstruction = malloc(16 * sizeof(char));
+  char *cInstruction = NULL;
+  cInstruction = malloc(17 * sizeof(char));
+  cInstruction[16] = '\0';
   
 
   // starts with 111
@@ -131,14 +137,8 @@ char *translateCInstruction(char *line) {
     cInstruction[i] = '1';
   }
 
-//  char *destValue = dest(line);
-//  char *destBinaryInstruction = linearSearch(destValue, DestOpCodes, 8);
-
   char *compValue = comp(line);
   char *compBinaryInstruction = linearSearch(compValue, CompOpCodes, 28);
-
-//  char *jumpValue = jump(line);
-//  char *jumpBinaryInstruction = linearSearch(jumpValue, JumpOpCodes, 8);
 
   // placing the comp instruction into its position in the c instruction
   int compIndex = 0;

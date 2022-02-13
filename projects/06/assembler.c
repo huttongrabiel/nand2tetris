@@ -83,7 +83,6 @@ int main(int argc, char *argv[]) {
       }
       
       free(trimmedLine);
-      trimmedLine = NULL;
       line[0] = '\0';
     }
   }
@@ -95,10 +94,6 @@ int main(int argc, char *argv[]) {
 }
 
 // trim line of blank characters that fgets adds due to large buffer size
-// trimline needs a rewrite because when we have loops we have blank chars
-// to the left and the right of the string that we want. meaning we have to check
-// if char[0] == ' ' and if it does we need to increase our index until line[i]
-// equals '@'
 char *trimLine(char *line) { 
   int count = 0;
   int countBlankChars = 0;
@@ -129,13 +124,16 @@ char *trimLine(char *line) {
   char *trimmedLine = NULL;
   trimmedLine = malloc(trimmedLineLen+1 * sizeof(char));
 
-  trimmedLine[trimmedLineLen] = '\0'; 
-
   int lineIndex = 0;
   for (int i = startIndex; i < trimmedLineLen+startIndex; i++) {
     trimmedLine[lineIndex] = line[i];
     lineIndex++;
   }
+
+  trimmedLine[lineIndex] = '\0';
+//  printf("TrimmedLineLen = %d\n", trimmedLineLen);
+//  printf("Trimmed Line = %s\n", trimmedLine);
+//  printf("LineIndex = %d\n", lineIndex);
 
   return trimmedLine;
 }
