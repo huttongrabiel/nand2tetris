@@ -1,0 +1,41 @@
+TODO
+  - [X] Rewrite trimLine to trim preceding blank characters if line[0] == ' '
+        otherwise just start at 0 and don't trim from the front
+  - [] Test more symbolTable.c functions in assembler.c in main in the commented part
+  - [] Figure out how to fill symbol table
+    - 
+  - [X] rewrite getProgramSymbolStructSize() to track what labels and variables we
+       have already seen
+
+Rewrote trimLine()
+    In the symbol-less instructions all instructions started at line[0]. However, when we add in
+    symbols, only (labels) start at line[0]. All other instructions will have a tab in front of
+    the first character. In order to correctly trim lines, we need to trim all blank characters
+    both before and after the line as well the CR LF characters that end the line. 
+
+    How I Rewrote It:
+      All we really need to do is modify the index that we start at. Remember, we are not actually
+      modifying the line in any way. We are just determining which characters in the line we want 
+      to add to our char *trimmedLine string. So, if we have the instruction '   @address   0x0d0a'
+      we want to have our index start at 3, '@', and continue until 10, 's', then stop. 
+
+      So we have one loop count all the non-instruction characters. That way we can determine the
+      size of just the instruction. strlen(line) - count = exact instruction size. 
+
+      Another loop counts the amount of blank characters that come before the instruction. Each time
+      we encounter a blank character, we increase our startIndex integer. 
+
+      The last loop actually places the values from line into our new char *trimmedLine. We start
+      trimmedLine at 0 with its own index. However the loop starts from startIndex and goes until
+      (strlen(line)-count) + startIndex. This way iterate until the last character in the instruction
+      but not into the blank characters that follow.
+
+Note Before Break to Remember Exactly Where I Am
+  Just had an aha moment and realized I needed to also compare the indexes to make sure
+  it was not a duplicate. Still having issues with returning the correct amount of variables.
+  Max.asm only returns two when it has at least 3. Will investigate more after break.
+
+Fixed Error With getProgramSymbolStructSize() Not Returning Correct Size
+  duplicateFlag needed to be reset to 0 for each new line. I forgot to do that which
+  caused it to stay set after coming across the duplicate. getProgramSymbolSize() is functional
+  now.

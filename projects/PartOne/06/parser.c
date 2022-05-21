@@ -37,7 +37,7 @@ char *parseLabel(char *line) {
 
 char *dest(char *line) {
   // return chars before '=', or null if '=' not in string
-  char *destRes;
+  char *destRes = NULL;
   destRes = malloc(3 * sizeof(char)); // dest needs three chars max
   int equalFlag = 0; // check for equal sign
   
@@ -75,7 +75,7 @@ char *dest(char *line) {
 
 char *jump(char *line) {
   // return chars after ';' to end of line
-  char *jumpRes;
+  char *jumpRes = NULL;
   jumpRes = malloc(3 * sizeof(char)); // jump is max three characters
   int semicolon = 0; 
 
@@ -115,6 +115,10 @@ char *jump(char *line) {
     }
     return jumpRes;
   }
+
+  if (jumpRes == NULL) {
+    free(jumpRes);
+  }
   
   char *nullVal = "null";
   return nullVal;
@@ -122,7 +126,7 @@ char *jump(char *line) {
 
 char *comp(char *line) {
   // return computation characters
-  char *compRes;
+  char *compRes = NULL;
   compRes = malloc(3 * sizeof(char)); // comp is max three characters
 
   int flag = 0; // if we encounter the '=' we dont want line 141 to execute anymore

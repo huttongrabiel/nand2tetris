@@ -1,0 +1,20 @@
+TODO
+  - [X] Rewrite trimLine to trim preceding blank characters if line[0] == ' '
+    otherwise just start at 0 and don't trim from the front
+  - [] Test more symbolTable.c functions in assembler.c in main in the commented part
+  - [] Figure out how to fill symbol table
+
+Summary of Today
+  - got isVariable(), isLoop(), and getProgramSymbolStructSize() working (as far as I can tell)
+    - getProgramSymbolStructSize() is not counting variables which is a bug but it is not a bug
+      within the function but is happening in trimline. The above modification to trimLine should
+      solve that bug
+  - added symbolTable to makefile to handle symbolTable.c and its header file. I added symbolTable.h
+    to assembler.c so that we can symbolTable functions from our main function in assembler.c
+
+
+Finally made a bit of progress because I've been neglecting this for the past couple of days. 
+Tomorrow is Sunday and I should be able to get a good amount done in it's functionality and
+testing. I think I want to handle adding variable and loop key, values to (almost) last. It is 
+going to be a trick dealing with the memory for that but I'll try to get it done tomorrow. Should
+be a fun challenge!

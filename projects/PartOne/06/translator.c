@@ -146,7 +146,6 @@ char *translateCInstruction(char *line) {
     cInstruction[i] = compBinaryInstruction[compIndex];
     compIndex++;
   }
-//  free(compBinaryInstruction);
 
   char *destValue = dest(line);
   char *destBinaryInstruction = linearSearch(destValue, DestOpCodes, 8);
@@ -157,7 +156,6 @@ char *translateCInstruction(char *line) {
     cInstruction[i] = destBinaryInstruction[destIndex];
     destIndex++;
   }
-//  free(destBinaryInstruction);
 
   char *jumpValue = jump(line);
   char *jumpBinaryInstruction = linearSearch(jumpValue, JumpOpCodes, 8);
@@ -168,6 +166,12 @@ char *translateCInstruction(char *line) {
     cInstruction[i] = jumpBinaryInstruction[jumpIndex];
     jumpIndex++;
   }
+
+//  free(compValue);
+//  free(compBinaryInstruction);
+//  free(destValue);
+//  free(destBinaryInstruction);
+//  free(jumpValue);
 //  free(jumpBinaryInstruction);
 
   return cInstruction;

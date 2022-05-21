@@ -39,6 +39,8 @@ int main(int argc, char *argv[]) {
   rewind(assemblyCode);
 
   int enterKeyHexValue = 0; // UNIX = 0x0a, WINDOWS = 0x0d0a, MAC = 0x0d
+  char* AInstruction = NULL;
+  char* CInstruction = NULL;
 
   // while not at EOF and fgets() does not return NULL, print line.
   // clear line and repeat. if statement checks for comments, "//", 
@@ -56,7 +58,6 @@ int main(int argc, char *argv[]) {
       trimmedLine = trimLine(line);
 
       if (trimmedLine[0] == '@') {
-        char *AInstruction;
         int symbolCount = labelCount + variableCount;
 
         if (isDefined(trimmedLine, programSymbols, symbolCount)) {
@@ -75,7 +76,6 @@ int main(int argc, char *argv[]) {
         free(AInstruction);
       }
       else {
-        char *CInstruction;
         CInstruction = translateCInstruction(trimmedLine);
         fputs(CInstruction, dotHack);
         fprintf(dotHack, "%c", '\n');
@@ -86,7 +86,9 @@ int main(int argc, char *argv[]) {
       line[0] = '\0';
     }
   }
-
+  
+  freeProgramSymbols();
+  free(programSymbols);
   fclose(assemblyCode);
   fclose(dotHack);
 
@@ -157,4 +159,16 @@ int getCommentIndex(char *line) {
     }
   }
   return commentStartIndex;
+}
+
+// free every pointer that is in the
+// programSymbol map struct in order to fix
+// memory leaks while maintaining integrity
+// out code output
+void freeProgramSymbols() {
+  int symbolCount = variableCount + labelCount;
+  for (int i = 0; i < symbolCount; i++) {
+    free(programSymbols[i].instruction);
+    free(programSymbols[i].binaryInstruction);
+  }
 }

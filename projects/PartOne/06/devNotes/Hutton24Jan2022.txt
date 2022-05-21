@@ -1,0 +1,22 @@
+TODO:
+  - [X] Format .hack file output to have a new line after each instruction 
+  - [X] Test .hack output against nand2tetris output
+  - [X] Fix what doesn't work
+  - [X] Find Another way to parse comp value that does not rely on the equal sign
+
+Added fprintf(dotHack, "%c", '\n') to add new lines after each binary instruction.
+Worked as expected. 
+
+THE BUG CAME BACK TO BITE ME IN THE ASS. I have to rewrite the parser to not use the 
+'=' when parsing comp instruction. If we don't have an equal sign (ie D;JGT) it fails. 
+Back to the drawing board, hahaha. 
+
+Bug Fix:
+  Rewrote dest() and comp() to handle ok when there is not an '=' present. Just had to 
+  check for the equal in the string first. Then handle differently depending on whether
+  the equal was present or not. If equal was present then it used the equal sign. Otherwise
+  the indexes and return values had to change a bit. Easy fix, only add like 10 lines of code.
+
+Assembler now works on symbol-less programs. Now time to start working on symbolTable.c and get
+the symbols to work. Have to use the predefined symbols and do a pass to collect the symbols
+the programmer created.

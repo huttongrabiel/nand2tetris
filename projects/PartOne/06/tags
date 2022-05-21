@@ -1,0 +1,44 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+ASSEMBLER	assembler.h	2;"	d
+CC	Makefile	/^CC=gcc$/;"	m
+CFLAGS	Makefile	/^CFLAGS= -g$/;"	m
+CompOpCodes	translator.c	/^struct map CompOpCodes[28] = { $/;"	v	typeref:struct:map
+DestOpCodes	translator.c	/^struct map DestOpCodes[8] = { $/;"	v	typeref:struct:map
+JumpOpCodes	translator.c	/^struct map JumpOpCodes[8] = { $/;"	v	typeref:struct:map
+PARSER	parser.h	2;"	d
+SYMBOL_TABLE	symbolTable.h	2;"	d
+TRANSLATOR	translator.h	2;"	d
+addLabels	symbolTable.c	/^void addLabels(FILE *assemblyCode) {$/;"	f
+addVariables	symbolTable.c	/^void addVariables(FILE *assemblyCode) {$/;"	f
+binaryInstruction	translator.h	/^  char *binaryInstruction;$/;"	m	struct:map
+comp	parser.c	/^char *comp(char *line) {$/;"	f
+convertIntToChar	symbolTable.c	/^char *convertIntToChar(int val) {$/;"	f
+dest	parser.c	/^char *dest(char *line) {$/;"	f
+freeProgramSymbols	assembler.c	/^void freeProgramSymbols() {$/;"	f
+getCommentIndex	assembler.c	/^int getCommentIndex(char *line) {$/;"	f
+indexOf	assembler.c	/^int indexOf(char *line, struct map *mapArr, int mapArrSize) {$/;"	f
+instruction	translator.h	/^  char *instruction;$/;"	m	struct:map
+isDefined	symbolTable.c	/^int isDefined(char *line, struct map *mapArray, int arraySize) {$/;"	f
+isLabel	symbolTable.c	/^int isLabel(char *line) {$/;"	f
+isPredefined	symbolTable.c	/^int isPredefined(char *line) {$/;"	f
+isVariable	symbolTable.c	/^int isVariable(char *line) {$/;"	f
+jump	parser.c	/^char *jump(char *line) {$/;"	f
+labelCount	symbolTable.c	/^int labelCount = 0;$/;"	v
+linearSearch	translator.c	/^char *linearSearch(char *instruction, struct map opCodes[], int arraySize) {$/;"	f
+main	assembler.c	/^int main(int argc, char *argv[]) {$/;"	f
+map	translator.h	/^struct map {$/;"	s
+memoryMultiplier	symbolTable.c	/^int memoryMultiplier = 1;$/;"	v
+parseAInstruction	parser.c	/^char *parseAInstruction(char *line) {$/;"	f
+parseLabel	parser.c	/^char *parseLabel(char *line) {$/;"	f
+predefinedSymbols	symbolTable.c	/^struct map predefinedSymbols[23] = {$/;"	v	typeref:struct:map
+programSymbols	symbolTable.c	/^struct map *programSymbols;$/;"	v	typeref:struct:map
+symbolIndex	symbolTable.c	/^int *symbolIndex = NULL;$/;"	v
+translateAInstruction	translator.c	/^char *translateAInstruction(char *line) {$/;"	f
+translateCInstruction	translator.c	/^char *translateCInstruction(char *line) {$/;"	f
+trimLine	assembler.c	/^char *trimLine(char *line) { $/;"	f
+variableCount	symbolTable.c	/^int variableCount = 0;$/;"	v

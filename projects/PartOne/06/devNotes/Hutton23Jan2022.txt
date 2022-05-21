@@ -1,0 +1,12 @@
+TODO:
+  - work on fixing translateAInstruction()/translateCInstruction() bug
+    - both functions work when called in translator.c however when i call them in assembler.c
+      they output incorrect values. i have no idea why
+
+translateAInstruction()/translateCInstruction() Bug
+===================================================
+
+- Both functions work as expected when fed inputs such as char *input = @2 or char *input = D=M+1;JGT
+  (tested this in translator.c main() function)
+- Both functions work if I pass trimLine() to parseA/CInstruction BUT ONLY WHEN IN TRANSLATOR.c
+- If I pass these trimLine() to the parseA/CInstruction I get incorrect values

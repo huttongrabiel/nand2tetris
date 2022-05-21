@@ -1,0 +1,19 @@
+TODO:
+  - Build out assembler.c 
+    - Read input file line by line
+    - Check first non blank char of line and correspond it to 
+      a C or an A Instruction
+    - call parseCInstruction or parseAInstruction, store the output in a 
+      char *line
+    - output that char *line to the out.hack file
+    - clear the char *line
+    - go to next line in input file
+    - repeat
+
+Translator.c now converts a instructions and c instructions with their respective functions, translateAInstruction(char *line) 
+and translateCInstruction(char *line). The issue of the jump and dest conversions failing if the '=' is not present
+is still an issue. I suppose I'll find out if that matters once I start running the nand2tetris tests. If it fails
+it will be pretty clear because our instructions will be shorter than 16 bits. 
+
+Assembler.c takes a command line argument of a file. It attempts to open the file. If the file does not open it throws
+an error and exits the program. 

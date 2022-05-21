@@ -1,0 +1,5 @@
+TODO:
+  - [X] Branch and start fillSymbolTable functionality
+  - [] Write functionality for fillSymbolTable()
+  - [] Test fillSymbolTable
+

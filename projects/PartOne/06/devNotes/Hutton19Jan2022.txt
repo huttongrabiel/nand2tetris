@@ -1,0 +1,13 @@
+TODO:
+  - Consider how not having an equal sign will cause comp and dest to not return the correct values
+
+
+I tried the instruction M+1 and it did not work for the dest and comp bits. Both dest() and comp() rely on the equal sign
+to parse the information. This has two possible solutions: M+1 and its similar non equal sign having instructions will not
+show up and we can on about our day. On the other hand, if those types of instructions do show up, I'll need to rewrite the
+dest() and comp() instructions to not rely on the equal sign.
+
+Worked on converting from a string of int chars (ie '3') to ints. Took me a little while to get the correct for loop values.
+What happens is that the index of i and the index of j go opposite of each other (i increases while j decreases) but are also
+off of each other by an integer. Therefore I gave j its own index, jIndex, that just started from strlen(line)-2. This works.
+This code is in translator.c lines 106-120. Was trickier than I thought it was going to be, might just be tired haha. 
